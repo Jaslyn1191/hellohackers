@@ -1,7 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-</LinearLayout>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_background">
+
+    <!--Order from top stack to bottom
+        Each block has space of 40dp-->
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:src="@drawable/mediai_logo_noname"
+        android:layout_marginBottom="130dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="45dp"
+        android:text="@string/app_name"
+        android:textSize="45dp"
+        android:fontFamily="@font/nextsunday"
+        android:textColor="@color/white"
+        android:shadowColor="@color/dark_teal"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="20"
+        />
+
+    <!--Email and Password #text-->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginRight="100dp"
+        android:text="Email:"
+        android:textSize="20dp"
+        android:fontFamily="@font/winterdraw"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="45dp"
+        android:layout_marginRight="115dp"
+        android:text="Password:"
+        android:textSize="20dp"
+        android:fontFamily="@font/winterdraw"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="85dp"
+        android:layout_marginRight="135dp"
+        android:text="Date of Birth:"
+        android:textSize="20dp"
+        android:fontFamily="@font/winterdraw"
+        />
+
+    <!--Email and Password input-->
+    <EditText
+        android:id="@+id/userEmail"
+        android:layout_width="250dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="60dp"
+        android:hint="@string/email_input_hint"
+        android:inputType="textEmailAddress"
+        android:textSize="20dp"
+        android:background="@color/white"
+        />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="60dp"
+        app:endIconMode="password_toggle">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/userPassword"
+            android:layout_width="250dp"
+            android:layout_height="30dp"
+            android:hint="@string/password_input_hint"
+            android:inputType="textPassword"
+            android:textSize="20dp"
+            android:background="@color/white"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <EditText
+        android:id="@+id/user_dob"
+        android:layout_width="250dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="85dp"
+        android:layout_marginLeft="60dp"
+        android:hint=" Date of Birth"
+        android:inputType="textEmailAddress"
+        android:textSize="20dp"
+        android:background="@color/white"
+        android:focusable="false"
+        android:clickable="true"
+        />
+
+
+    <Button
+        android:id="@+id/user_signup"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="125dp"
+
+        android:background="@color/teal_700"
+        android:text="@string/user_signup"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center|left"
+        android:layout_marginTop="320dp"
+        android:layout_marginLeft="20dp"
+
+        android:text="Back"
+        android:textColor="@android:color/white"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:background="@color/teal_700"
+        android:textAllCaps="false"
+        />
+
+</FrameLayout>
+
