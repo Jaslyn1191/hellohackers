@@ -3,7 +3,7 @@ import db from "./firebase-admin.js";
 
 export async function getUserPendingCases() {
     // get the cases that fulfil both conditions
-    const cases = await db.collection("cases").where("status", "Pending").get();
+    const cases = await db.collection("cases").where("status", "Pending pharmacist").get();
 
     const userPendingCases =[];
     userCases.forEach(doc => {

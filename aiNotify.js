@@ -1,4 +1,4 @@
-// import db from "./firebase-admin.js"; 
+import db from "./firebase-admin.js"; 
 import admin from "firebase-admin";
 
 export async function sendToPharmacist({ caseId, userIssue }) {
@@ -6,7 +6,7 @@ export async function sendToPharmacist({ caseId, userIssue }) {
     await db.collection("user_report").add({
       caseId,
       userIssue,
-      status: "pending",
+      status: "Pending pharmacist",
       // create auto timestamp
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
