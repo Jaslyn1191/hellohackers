@@ -1,14 +1,29 @@
 import db from "./firebase-admin.js";
 
-export async function getUserPendingCases() {
-  const cases = await db.collection("cases")
-    .where("status", "Pending Pharmacist Review")
-    .get();
+export async function reviewCases(caseId, selection) {
+  // if choice not in selections
+  if (!["approved", "furtherAssessment"].includes(selection)) {
+    throw new Error("Invalid option, choose again.")
+  }
 
-  const userCases = [];
-  cases.forEach(doc => {
-    pendingCases.push({ caseId: doc.id });
+  let newStatus; // create new variable
+  let aiMessage;
+
+  if (selection === "approved") {
+    newStatus = "Approved";
+    aiMessage = "Your case have been approved. You can either self-collect your medicine or delivery instantly now."
+  } else {
+    newStatus = "Further Assessment Required"
+    aiMessage = "Your case is required for further assessment. The pharmacist will contact you sooner."
+  }
+
+  await db.collection("cases").doc(caseId).update({
+    status: newStatus,
+    reviewedAt: new Date()
   });
 
-  return pendingCases;
+  return {
+    success: true,
+    aiMessage
+  };
 }
