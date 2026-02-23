@@ -1,8 +1,6 @@
 # Hellohackers
 
 
-AI-OTC App is a powerful application that allows convinence to the users to purchase medication without visiting the pharmacy stores. 
-
 ## Table of contents
 
 - Project overview
@@ -14,6 +12,10 @@ AI-OTC App is a powerful application that allows convinence to the users to purc
 - Future roadmap
 
 ## Project Overview
+The advancement in society causes the increase in health issues, leading to increase in demand and consumption of medicines. Over-the-counter (OTC) drugs play a vital role in the healthcare landscape of Malaysia, and people always buy medicines from pharmacy stores without prescriptions as they have easy accessibility to drugs. Hence, introduction of Artificial Intelligence (AI) has brought significant developments in many industries across the world. We can improve the accessibility, accuracy and efficiency of OTC drugs by incorporating AI usage in healthcare. 
+
+This covers Sustainable Development Goals (SDG) 
+
 # Frontend
 
 # Backend
