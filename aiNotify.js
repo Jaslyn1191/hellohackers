@@ -6,7 +6,7 @@ export async function sendToPharmacist({ caseId, userIssue }) {
     await db.collection("user_report").add({
       caseId,
       userIssue,
-      status: "Pending pharmacist",
+      status: "Pending Pharmacist Review",
       // create auto timestamp
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
