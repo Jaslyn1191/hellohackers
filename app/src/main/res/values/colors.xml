@@ -15,5 +15,7 @@
     <color name="dark_teal">#005757</color>
     <color name="dark_blue">#001A57</color>
     <color name="login_blue">#1F68DE</color>
+    <color name="grey">#6b6c6e</color>
+
 
 </resources>
