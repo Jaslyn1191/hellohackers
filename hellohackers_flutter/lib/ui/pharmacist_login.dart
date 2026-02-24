@@ -1,24 +1,21 @@
-
 import 'package:flutter/material.dart';
-import 'user_signup.dart';
-import 'pharmacist_login.dart';
 import 'forgot_password.dart';
 
-class UserLoginPage extends StatefulWidget {
-  const UserLoginPage({super.key});
+class PharmacistLoginPage extends StatefulWidget {
+  const PharmacistLoginPage({super.key});
 
   @override
-  State<UserLoginPage> createState() => _UserLoginPageState();
+  State<PharmacistLoginPage> createState() => _PharmacistLoginPageState();
 }
 
-class _UserLoginPageState extends State<UserLoginPage> {
-  final emailController = TextEditingController();
+class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
+  final staffIdController = TextEditingController();
   final passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    emailController.dispose();
+    staffIdController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -43,7 +40,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
             children: [
               const Spacer(flex: 2),
 
-              // Logo (matches ImageView centered)
+              // Logo
               Image.asset(
                 'assets/images/mediai_logo_noname.png',
                 width: 200,
@@ -53,7 +50,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
               const SizedBox(height: 10),
 
-              // App name (TextView)
+              // App name
               const Text(
                 'MediAI',
                 textAlign: TextAlign.center,
@@ -63,7 +60,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   color: Colors.white,
                   shadows: [
                     Shadow(
-                      color: Color(0xFF004D40), // dark teal shadow
+                      color: Color(0xFF004D40),
                       blurRadius: 20,
                     ),
                   ],
@@ -72,29 +69,30 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
               const SizedBox(height: 40),
 
-              // Email label + input (approximates the XML linear layout)
+              // Staff ID label + input
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(width: 20),
                   const Text(
-                    'Email:',
-                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                    'Staff ID:',
+                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: Colors.white),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Container(
                       height: 40,
+                      margin: const EdgeInsets.only(right: 20),
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       color: Colors.white,
                       child: TextField(
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: staffIdController,
+                        keyboardType: TextInputType.text,
                         style: const TextStyle(fontSize: 18),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
-                          hintText: 'Enter email',
+                          hintText: 'Enter staff ID',
                         ),
                       ),
                     ),
@@ -111,12 +109,13 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   const SizedBox(width: 20),
                   const Text(
                     'Password:',
-                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: Colors.white),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Container(
                       height: 40,
+                      margin: const EdgeInsets.only(right: 20),
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       color: Colors.white,
                       child: TextField(
@@ -141,37 +140,17 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
               const SizedBox(height: 30),
 
-              // Buttons: Login and Signup stacked similar to XML
+              // Login Button
               SizedBox(
                 width: 100,
                 height: 40,
                 child: ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00796B), // teal_700-ish
-                  ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              SizedBox(
-                width: 100,
-                height: 40,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    '/signUp',
-                  ),
-                  style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00796B),
                   ),
                   child: const Text(
-                    'Sign Up',
+                    'Login',
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
@@ -186,22 +165,19 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.pushNamed(
+                      onPressed: () => Navigator.push(
                         context,
-                        '/forgotPassword',
+                        MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
                       ),
                       child: const Text(
                         'Forgot Password',
-                        style: TextStyle(color: Color(0xFF1976D2), fontSize: 15), // login_blue-ish
+                        style: TextStyle(color: Color(0xFF1976D2), fontSize: 15),
                       ),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.pushNamed(
-                        context,
-                        '/pharmacistLogin',
-                      ),
+                      onPressed: () => Navigator.pop(context),
                       child: const Text(
-                        'Pharmacist Login',
+                        'User Role Login',
                         style: TextStyle(color: Color(0xFF1976D2), fontSize: 15),
                       ),
                     ),

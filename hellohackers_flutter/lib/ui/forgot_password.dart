@@ -1,0 +1,144 @@
+import 'package:flutter/material.dart';
+
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
+
+  @override
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+}
+
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/login_background.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(flex: 2),
+
+              // Logo
+              Image.asset(
+                'assets/images/mediai_logo_noname.png',
+                width: 200,
+                height: 200,
+                fit: BoxFit.contain,
+              ),
+
+              const SizedBox(height: 10),
+
+              // App name
+              const Text(
+                'MediAI',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 45,
+                  fontFamily: 'nextsunday',
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      color: Color(0xFF004D40),
+                      blurRadius: 20,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // Email label + input
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(width: 20),
+                  const Text(
+                    'Email:',
+                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: Colors.white),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      margin: const EdgeInsets.only(right: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      color: Colors.white,
+                      child: TextField(
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        style: const TextStyle(fontSize: 18),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Enter email',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 50),
+
+              // Next Button
+              SizedBox(
+                width: 100,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00796B),
+                  ),
+                  child: const Text(
+                    'Next',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ),
+              ),
+
+              const Spacer(flex: 3),
+
+              // Back Button
+              Padding(
+                padding: const EdgeInsets.only(left: 20, bottom: 12),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: SizedBox(
+                    width: 100,
+                    height: 40,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00796B),
+                      ),
+                      child: const Text(
+                        'Back',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.compose.ComponentActivityKt;
-import com.example.mediai.ui.ChatScreenKt;
 import com.example.mediai.ui.theme.ThemeKt;
 
 import java.util.Set;
@@ -71,25 +70,6 @@ public class UserLogin extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-    }
-
-    //add functions for the buttons
-    private void generateQuote() {
-
-        QuoteAPI.fetchRandomQuote(new QuoteAPI.QuoteCallBack() {
-            @Override
-            public void onSuccess(Quote quote) { //Quote object hv 2 attributes
-                currentQuote = quote;
-                quoteText.setText(quote.quoteTitle);
-                quoteAuthor.setText("- " + quote.quoteAuthor);
-            }
-
-            @Override
-            public void onFailed(String error) {
-                quoteText.setText("Error: " + error);
-                quoteAuthor.setError(" ");
-            }
-        });
     }
 
     private void SaveToList(){

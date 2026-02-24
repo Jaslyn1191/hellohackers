@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hellohackers_flutter/core/colors.dart';
 
 class CaseCard extends StatelessWidget {
-  final String caseId;
+  final String case_id;
   final String status;
 
   const CaseCard({
     super.key,
-    required this.caseId,
+    required this.case_id,
     required this.status,
   });
 
@@ -19,27 +20,17 @@ class CaseCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
 
-        // ✅ Stroke (like android border)
         border: Border.all(
-          color: Colors.grey, // change color if you want
+          color: AppColors.ashBlue,
           width: 2,
         ),
-
-        // ✅ Shadow (like card elevation)
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            caseId,
+            case_id,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
