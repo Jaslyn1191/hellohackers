@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import "ui/user_login.dart";
+import "core/colors.dart";
 
 void main() async {
   // TODO: 1. Flutter bindings and Firebase Initialization
@@ -19,6 +20,40 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MetaAI',
       theme: ThemeData(
+  useMaterial3: true,
+
+  colorScheme: const ColorScheme.light(
+    primary: AppColors.lightBlue,
+    secondary: Colors.white,
+    background: AppColors.green,
+    surface: Colors.white,
+  ),
+
+  scaffoldBackgroundColor: Colors.white,
+
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColors.teal700, // green button
+      foregroundColor: AppColors.darkTeal,
+    ),
+  ),
+
+  appBarTheme: const AppBarTheme(
+    backgroundColor: AppColors.lightBlue,
+    foregroundColor: AppColors.blue,
+    elevation: 0,
+  ),
+),themeMode: ThemeMode.system,
+      // home: MyHomePage(title: "Idea Board"), //You Have to Remove this first
+      // TODO: 2. Change this to Routes
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MyHomePage(title: "Idea Board"),
+        '/add': (context) => UserLoginPage(),
+      },
+    );
+  }
+}
         // This is the theme of your application.
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
@@ -36,10 +71,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         // colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       // ),
-      home: UserLoginPage(),
-    );
-  }
-}
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
