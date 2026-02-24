@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'forgot_password.dart';
 import 'phar_dashboard.dart';
+import 'package:hellohackers_flutter/core/colors.dart';
 
 class PharmacistLoginPage extends StatefulWidget {
   const PharmacistLoginPage({super.key});
@@ -63,7 +64,7 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
                 style: TextStyle(
                   fontSize: 45,
                   fontFamily: 'nextsunday',
-                  color: Colors.white,
+                  color: AppColors.white,
                   shadows: [
                     Shadow(
                       color: Color(0xFF004D40),
@@ -83,7 +84,7 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
                   const SizedBox(width: 20),
                   const Text(
                     'Staff ID:',
-                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: Colors.white),
+                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: AppColors.black),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -91,7 +92,7 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
                       height: 40,
                       margin: const EdgeInsets.only(right: 20),
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      color: Colors.white,
+                      color: AppColors.white,
                       child: TextField(
                         controller: staffIdController,
                         keyboardType: TextInputType.text,
@@ -115,7 +116,7 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
                   const SizedBox(width: 20),
                   const Text(
                     'Password:',
-                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: Colors.white),
+                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: Colors.black),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -123,7 +124,7 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
                       height: 40,
                       margin: const EdgeInsets.only(right: 20),
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      color: Colors.white,
+                      color: AppColors.white,
                       child: TextField(
                         controller: passwordController,
                         obscureText: _obscurePassword,
@@ -153,7 +154,9 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00796B),
+                    backgroundColor: AppColors.teal700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+
                   ),
                   child: _isLoading
                       ? const SizedBox(
@@ -161,39 +164,50 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
                           ),
                         )
                       : const Text(
                           'Login',
-                          style: TextStyle(fontSize: 20, color: Colors.white),
+                          style: TextStyle(fontSize: 20, color: AppColors.white),
                         ),
                 ),
               ),
 
               const Spacer(flex: 3),
 
-              // Bottom links: left and right
+              // Forgot Password and User Role Login links
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: (screenWidth - 320) / 2 < 0 ? 20 : (screenWidth - 320) / 2),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
-                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Forgot Password?'),
+                            content: const Text('Please reach out to your manager for the admin password.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Forgot Password',
-                        style: TextStyle(color: Color(0xFF1976D2), fontSize: 15),
+                        style: TextStyle(color: AppColors.blue, fontSize: 15),
                       ),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text(
                         'User Role Login',
-                        style: TextStyle(color: Color(0xFF1976D2), fontSize: 15),
+                        style: TextStyle(color: AppColors.blue, fontSize: 15),
                       ),
                     ),
                   ],
@@ -221,13 +235,13 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
 
     try {
       // Query Firestore to find staff member by staffId
-      final QuerySnapshot querySnapshot = await _firestore
-          .collection('pharmacists')
-          .where('staffId', isEqualTo: staffId)
+      final adminSnapshot = await _firestore
+          .collection('admin')
+          .where('staffID', isEqualTo: staffId)
           .limit(1)
           .get();
 
-      if (querySnapshot.docs.isEmpty) {
+      if (adminSnapshot.docs.isEmpty) {
         if (mounted) {
           _showErrorDialog('Error', 'Staff ID not found. Contact administrator.');
         }
@@ -235,8 +249,10 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
         return;
       }
 
-      // Get the email from the staff document
-      final staffDoc = querySnapshot.docs.first;
+      /// first element: email
+      /// second: password
+      /// third: staff id
+      final staffDoc = adminSnapshot.docs.first;
       final staffEmail = staffDoc['email'] as String?;
 
       if (staffEmail == null) {
@@ -247,18 +263,22 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
         return;
       }
 
+      print("Before login");
+
       // Authenticate using email and password
       UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: staffEmail,
         password: password,
       );
 
+      print("after login");
+
+//pharDashboard
       if (mounted) {
-        Navigator.pushReplacement(
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) => PharDashboardPage(staffEmail: staffEmail),
-          ),
+          '/pharDashboard',
+          arguments: staffEmail,
         );
       }
     } on FirebaseAuthException catch (e) {

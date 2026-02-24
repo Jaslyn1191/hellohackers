@@ -85,41 +85,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
               const SizedBox(height: 40),
 
               /// Email
-              /// check for screen width
-              screenWidth < 400
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20),
-                          child: const Text(
-                            'Email:',
-                            style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Container(
-                            height: 40,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            color: AppColors.white,
-                            child: TextField(
-                              controller: emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              style: const TextStyle(fontSize: 18),
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Enter email',
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-
-                  /// Padding is to align
-                  : Padding(
+              Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -161,7 +127,6 @@ class _UserLoginPageState extends State<UserLoginPage> {
               const SizedBox(height: 20),
 
               // Password label + input
-              //
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Row(
@@ -287,7 +252,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                         '/pharmacistLogin',
                       ),
                       child: const Text(
-                        'Pharmacist Login',
+                        'Login as Pharmacist',
                         style: TextStyle(color: AppColors.loginBlue, fontSize: 15),
                       ),
                     ),

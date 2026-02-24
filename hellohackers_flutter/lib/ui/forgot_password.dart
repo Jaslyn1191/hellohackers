@@ -50,10 +50,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 style: TextStyle(
                   fontSize: 45,
                   fontFamily: 'nextsunday',
-                  color: Colors.white,
+                  color: AppColors.white,
                   shadows: [
                     Shadow(
-                      color: Color(0xFF004D40),
+                      color: AppColors.darkTeal,
                       blurRadius: 20,
                     ),
                   ],
@@ -78,7 +78,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       height: 40,
                       margin: const EdgeInsets.only(right: 20),
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      color: Colors.white,
+                      color: AppColors.white,
                       child: TextField(
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -108,7 +108,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                   child: const Text(
                     'Next',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(fontSize: 18, color: AppColors.white),
                   ),
                 ),
               ),

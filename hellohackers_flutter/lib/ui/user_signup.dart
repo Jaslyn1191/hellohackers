@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
 
 class UserSignupPage extends StatefulWidget {
@@ -12,6 +13,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final dobController = TextEditingController();
+  int? _age;
   bool _obscurePassword = true;
 
   @override
@@ -32,6 +34,13 @@ class _UserSignupPageState extends State<UserSignupPage> {
     if (picked != null) {
       setState(() {
         dobController.text = '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+        // calculate age
+        final now = DateTime.now();
+        int years = now.year - picked.year;
+        if (now.month < picked.month || (now.month == picked.month && now.day < picked.day)) {
+          years -= 1;
+        }
+        _age = years;
       });
     }
   }
@@ -55,7 +64,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 // Logo
                 Image.asset(
@@ -64,8 +73,6 @@ class _UserSignupPageState extends State<UserSignupPage> {
                   height: 200,
                   fit: BoxFit.contain,
                 ),
-
-                const SizedBox(height: 10),
 
                 // App name
                 const Text(
@@ -87,123 +94,159 @@ class _UserSignupPageState extends State<UserSignupPage> {
                 const SizedBox(height: 30),
 
                 // Email label + input
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 20),
-                    const Text(
-                      'Email:',
-                      style: TextStyle(fontSize: 18, fontFamily: 'winterdraw', color: AppColors.black),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 20),
-                        height: 40,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        color: Colors.white,
-                        child: TextField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          style: const TextStyle(fontSize: 16),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Enter email',
+              Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            height: 40,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: const Text(
+                                'Email:',
+                                style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Container(
+                              height: 40,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              color: AppColors.white,
+                              child: TextField(
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                style: const TextStyle(fontSize: 18),
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'Enter email',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 20),
 
                 // Password label + input
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 20),
-                    const Text(
-                      'Password:',
-                      style: TextStyle(fontSize: 18, fontFamily: 'winterdraw', color: AppColors.black),
+                Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 80,
+                    height: 40,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        'Password:',
+                        style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                      ),
                     ),
-                    const SizedBox(width: 16),
+                  ),
+                  const SizedBox(width: 16),
                     Expanded(
                       child: Container(
-                        margin: const EdgeInsets.only(right: 20),
-                        height: 40,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        color: Colors.white,
-                        child: TextField(
-                          controller: passwordController,
-                          obscureText: _obscurePassword,
-                          style: const TextStyle(fontSize: 16),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Enter password',
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      color: AppColors.white,
+                      child: TextField(
+                        controller: passwordController,
+                        obscureText: _obscurePassword,
+                        style: const TextStyle(fontSize: 18),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Enter password',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 60,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: const Text(
+                              'Date of Birth:',
+                              style: TextStyle(fontSize: 18, fontFamily: 'winterdraw', color: AppColors.black),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        SizedBox(
+                          width: 220,
+                          child: GestureDetector(
+                            onTap: () => _selectDate(context),
+                            child: Container(
+                              height: 40,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              color: AppColors.white,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: dobController,
+                                      style: const TextStyle(fontSize: 18),
+                                      decoration: const InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: 'Select date',
+                                      ),
+                                      focusNode: AlwaysDisabledFocusNode(),
+                                    ),
+                                  ),
+                                  const Icon(Icons.calendar_today),
+                                ],
                               ),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
+                        const SizedBox(width: 16),
 
-                const SizedBox(height: 18),
-
-                // Date of Birth label + input
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 20),
-                    const Text(
-                      'Date of Birth:',
-                      style: TextStyle(fontSize: 18, fontFamily: 'winterdraw', color: Colors.white),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 20),
-                        height: 40,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        color: Colors.white,
-                        child: GestureDetector(
-                          onTap: () => _selectDate(context),
-                          child: TextField(
-                            controller: dobController,
-                            style: const TextStyle(fontSize: 16),
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Select date',
-                              suffixIcon: Icon(Icons.calendar_today),
-                            ),
-                            focusNode: AlwaysDisabledFocusNode(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
 
                 const SizedBox(height: 24),
 
                 // Sign Up Button
                 SizedBox(
-                  width: 100,
+                  width: 120,
                   height: 40,
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00796B),
+                      backgroundColor: AppColors.teal700,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+
                     ),
                     child: const Text(
                       'Sign Up',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                   ),
                 ),
@@ -212,16 +255,17 @@ class _UserSignupPageState extends State<UserSignupPage> {
 
                 // Back Button
                 SizedBox(
-                  width: 100,
+                  width: 120,
                   height: 40,
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00796B),
+                      backgroundColor: AppColors.teal700,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                     ),
                     child: const Text(
                       'Back',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                   ),
                 ),
