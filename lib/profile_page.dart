@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// This is a StatefulWidget because its content (the text in the form fields) can change.
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -9,53 +8,52 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // --- Key for the Form widget ---
-  // This key is used to uniquely identify the form and manage its state (like validation).
   final _formKey = GlobalKey<FormState>();
-
-  // --- Controllers for Text Fields ---
-  // Controllers listen to and control the text inside a TextFormField.
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
-  // --- Function to select a date (for Date of Birth) ---
   Future<void> _selectDate(BuildContext context) async {
-    // Show the date picker dialog
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(1900), // Earliest date allowed
-      lastDate: DateTime.now(), // Latest date allowed (today)
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF1976D2), // Darker blue header
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
-    // If a date was picked and it's different from the current one
     if (picked != null) {
       setState(() {
-        // Format the DateTime object to a simple String (YYYY-MM-DD)
-        // You can format this differently, e.g., using the `intl` package.
         _dobController.text = "${picked.year}-${picked.month}-${picked.day}";
       });
     }
   }
 
-  // --- Function called when the "Save Profile" button is pressed ---
   void _saveProfile() {
-    // Validate all the form fields that have a `validator` function.
     if (_formKey.currentState!.validate()) {
-      // If the form is valid, show a success message.
-      // In a real app, you would save this data to a database (like Firebase) here.
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile Saved! (Simulated)')),
+        SnackBar(
+          content: const Text('Profile Saved!'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
       );
-      // You can access the text from controllers like this:
-      // print('Name: ${_nameController.text}');
-      // print('DOB: ${_dobController.text}');
-      // print('Address: ${_addressController.text}');
     }
   }
 
-  // --- Important: Dispose controllers when the widget is removed ---
-  // This prevents memory leaks.
   @override
   void dispose() {
     _nameController.dispose();
@@ -68,85 +66,164 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Profile'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        title: const Text(
+          'User Profile',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        // The Form widget groups and validates multiple form fields [citation:3]
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            // ListView is scrollable, good for forms on small screens
-            children: [
-              // --- Name Field ---
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-                keyboardType: TextInputType.name,
-                // Validator ensures the field isn't empty [citation:3]
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // --- Date of Birth Field ---
-              TextFormField(
-                controller: _dobController,
-                decoration: InputDecoration(
-                  labelText: 'Date of Birth',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.calendar_today),
-                  // Add a suffix icon to make it clear it's tappable
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.edit_calendar),
-                    onPressed: () => _selectDate(context),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              const Color(0xFF1976D2).withValues(alpha: 0.1), // Darker blue tint
+              Colors.white,
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                // Profile Header with Avatar
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: const Color(0xFF1976D2), // Darker blue
+                        child: const Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 15,
+                          backgroundColor: Colors.green,
+                          child: const Icon(
+                            Icons.edit,
+                            size: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                readOnly: true, // Prevents manual typing, forces date picker
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select your date of birth';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-              // --- Address Field (Optional) ---
-              TextFormField(
-                controller: _addressController,
-                decoration: const InputDecoration(
-                  labelText: 'Address (Optional)',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.home),
+                // Name Field
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Full Name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black54, width: 1.5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black45, width: 1.5),
+                    ),
+                    prefixIcon: const Icon(Icons.person, color: Color(0xFF1976D2)),
+                  ),
+                  keyboardType: TextInputType.name,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
                 ),
-                keyboardType: TextInputType.streetAddress,
-                maxLines: 3, // Allows for multi-line addresses
-                // No validator means this field is optional
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-              // --- Save Button ---
-              ElevatedButton(
-                onPressed: _saveProfile,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                // Date of Birth Field
+                TextFormField(
+                  controller: _dobController,
+                  decoration: InputDecoration(
+                    labelText: 'Date of Birth',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black54, width: 1.5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black45, width: 1.5),
+                    ),
+                    prefixIcon: const Icon(Icons.calendar_today, color: Color(0xFF1976D2)),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.edit_calendar, color: Color(0xFF1976D2)),
+                      onPressed: () => _selectDate(context),
+                    ),
+                  ),
+                  readOnly: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select your date of birth';
+                    }
+                    return null;
+                  },
                 ),
-                child: const Text(
-                  'Save Profile',
-                  style: TextStyle(fontSize: 18),
+                const SizedBox(height: 16),
+
+                // Address Field
+                TextFormField(
+                  controller: _addressController,
+                  decoration: InputDecoration(
+                    labelText: 'Address (Optional)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black54, width: 1.5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.black45, width: 1.5),
+                    ),
+                    prefixIcon: const Icon(Icons.home, color: Color(0xFF1976D2)),
+                  ),
+                  keyboardType: TextInputType.streetAddress,
+                  maxLines: 3,
                 ),
-              ),
-            ],
+                const SizedBox(height: 24),
+
+                // Save Button
+                ElevatedButton(
+                  onPressed: _saveProfile,
+                  child: const Text(
+                    'Save Profile',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Secondary Action
+                Center(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(fontSize: 16, color: Color(0xFF1976D2)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
