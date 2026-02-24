@@ -12,7 +12,7 @@ export async function getPendingCases() {
   }
 
   const pendingCases = [];
-  snapshot.forEach(doc => {
+  cases.forEach(doc => {
     pendingCases.push({ caseId: doc.id });
   });
 

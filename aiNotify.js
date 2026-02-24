@@ -7,6 +7,7 @@ export async function sendToPharmacist({ caseId, userIssue }) {
       caseId,
       userIssue,
       status: "Pending Pharmacist Review",
+      callRequired: false,
       // create auto timestamp
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
