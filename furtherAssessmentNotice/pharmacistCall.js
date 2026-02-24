@@ -1,4 +1,5 @@
 import db from "./firebase-admin.js";
+import admin from "firebase-admin";
 
 export async function pharmacistCall(caseId) {
     try {
@@ -8,7 +9,12 @@ export async function pharmacistCall(caseId) {
             status: "Further Assessment Required",
             callEnabled: true,
             callStatus: "ringing",
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            conversation: admin.firestore.FieldValue.arrayUnion({
+                role: "system",
+                content: "Pharmacist has started a call. Please answer.",
+                timestamp: admin.firestore.FieldValue.serverTimestamp()
+            })
         });
 
         // record the call timing in firebase
@@ -24,7 +30,7 @@ export async function pharmacistCall(caseId) {
             caseId,
             callStatus: "ringing"
             };
-            
+
         } catch (error) {
             console.error("Failed to start pharmacist call", error);
             return { success: false, error: error.message };

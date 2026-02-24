@@ -4,10 +4,11 @@ import admin from "firebase-admin";
 export async function pharmacistChat(caseId, message, pharmacistId) {
     try {
 
-    await db.collection("cases").doc(caseId).update({
+    await db.collection("cases").doc(caseId, message).update({
         status: "Further Assessment Required",
         chatStart: true,
         conversation: admin.firestore.FieldValue.arrayUnion({
+            role: "pharmacist",
             content: message,
             timestamp: admin.firestore.FieldValue.serverTimestamp()
         }),
