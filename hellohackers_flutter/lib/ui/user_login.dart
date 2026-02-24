@@ -1,8 +1,18 @@
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hellohackers_flutter/core/colors.dart';
 import 'user_signup.dart';
 import 'pharmacist_login.dart';
 import 'forgot_password.dart';
+import 'user_dashboard.dart';
+
+  // getAuth,
+  // connectAuthEmulator,
+  // createUserWithEmailAndPassword,
+  // deleteUser,
+  // signInWithEmailAndPassword
+
 
 class UserLoginPage extends StatefulWidget {
   const UserLoginPage({super.key});
@@ -15,6 +25,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   @override
   void dispose() {
@@ -43,7 +55,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
             children: [
               const Spacer(flex: 2),
 
-              // Logo (matches ImageView centered)
+              // Logo
               Image.asset(
                 'assets/images/mediai_logo_noname.png',
                 width: 200,
@@ -53,17 +65,17 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
               const SizedBox(height: 10),
 
-              // App name (TextView)
+              // App name
               const Text(
                 'MediAI',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 45,
                   fontFamily: 'nextsunday',
-                  color: Colors.white,
+                  color: AppColors.white,
                   shadows: [
                     Shadow(
-                      color: Color(0xFF004D40), // dark teal shadow
+                      color: AppColors.darkTeal,
                       blurRadius: 20,
                     ),
                   ],
@@ -72,53 +84,107 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
               const SizedBox(height: 40),
 
-              // Email label + input (approximates the XML linear layout)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(width: 20),
-                  const Text(
-                    'Email:',
-                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Container(
-                      height: 40,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      color: Colors.white,
-                      child: TextField(
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(fontSize: 18),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Enter email',
+              /// Email
+              /// check for screen width
+              screenWidth < 400
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: const Text(
+                            'Email:',
+                            style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                          ),
                         ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Container(
+                            height: 40,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            color: AppColors.white,
+                            child: TextField(
+                              controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              style: const TextStyle(fontSize: 18),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Enter email',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+
+                  /// Padding is to align
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            height: 40,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: const Text(
+                                'Email:',
+                                style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Container(
+                              height: 40,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              color: AppColors.white,
+                              child: TextField(
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                style: const TextStyle(fontSize: 18),
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'Enter email',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
 
               const SizedBox(height: 20),
 
-              // Password label + input with toggle
-              Row(
+              // Password label + input
+              //
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 20),
-                  const Text(
-                    'Password:',
-                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                  SizedBox(
+                    width: 80,
+                    height: 40,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        'Password:',
+                        style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(
-                    child: Container(
+                    Expanded(
+                      child: Container(
                       height: 40,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      color: Colors.white,
+                      color: AppColors.white,
                       child: TextField(
                         controller: passwordController,
                         obscureText: _obscurePassword,
@@ -138,29 +204,44 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   ),
                 ],
               ),
+            ),
 
-              const SizedBox(height: 30),
+            const SizedBox(height: 30),
 
-              // Buttons: Login and Signup stacked similar to XML
+              // Buttons: Login and Signup
               SizedBox(
-                width: 100,
+                width: 120,
                 height: 40,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00796B), // teal_700-ish
+                    backgroundColor: AppColors.teal700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.white,
+                          ),
+                        ),
                 ),
               ),
 
               const SizedBox(height: 12),
 
               SizedBox(
-                width: 100,
+                width: 120,
                 height: 40,
                 child: ElevatedButton(
                   onPressed: () => Navigator.pushNamed(
@@ -168,11 +249,16 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     '/signUp',
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00796B),
+                    backgroundColor: AppColors.teal700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
                   child: const Text(
                     'Sign Up',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
               ),
@@ -192,7 +278,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                       ),
                       child: const Text(
                         'Forgot Password',
-                        style: TextStyle(color: Color(0xFF1976D2), fontSize: 15), // login_blue-ish
+                        style: TextStyle(color: AppColors.loginBlue, fontSize: 15), // login_blue-ish
                       ),
                     ),
                     TextButton(
@@ -202,7 +288,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                       ),
                       child: const Text(
                         'Pharmacist Login',
-                        style: TextStyle(color: Color(0xFF1976D2), fontSize: 15),
+                        style: TextStyle(color: AppColors.loginBlue, fontSize: 15),
                       ),
                     ),
                   ],
@@ -213,6 +299,71 @@ class _UserLoginPageState extends State<UserLoginPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+
+  Future<void> _handleLogin() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showErrorDialog('Error', 'Please enter email and password');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserDashboardPage(userEmail: email),
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'Login failed';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'Email not found. Please sign up.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password. Try again.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Invalid email address.';
+      }
+      if (mounted) {
+        _showErrorDialog('Login Error', errorMessage);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog('Error', 'An error occurred: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }

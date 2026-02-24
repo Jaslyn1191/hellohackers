@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hellohackers_flutter/core/colors.dart';
 
 class UserSignupPage extends StatefulWidget {
   const UserSignupPage({super.key});
@@ -73,7 +74,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                   style: TextStyle(
                     fontSize: 45,
                     fontFamily: 'nextsunday',
-                    color: Colors.white,
+                    color: AppColors.white,
                     shadows: [
                       Shadow(
                         color: Color(0xFF004D40),
@@ -92,7 +93,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                     const SizedBox(width: 20),
                     const Text(
                       'Email:',
-                      style: TextStyle(fontSize: 18, fontFamily: 'winterdraw', color: Colors.white),
+                      style: TextStyle(fontSize: 18, fontFamily: 'winterdraw', color: AppColors.black),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -124,7 +125,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                     const SizedBox(width: 20),
                     const Text(
                       'Password:',
-                      style: TextStyle(fontSize: 18, fontFamily: 'winterdraw', color: Colors.white),
+                      style: TextStyle(fontSize: 18, fontFamily: 'winterdraw', color: AppColors.black),
                     ),
                     const SizedBox(width: 16),
                     Expanded(

@@ -5,6 +5,10 @@ import "ui/user_login.dart";
 import "ui/user_signup.dart";
 import "ui/pharmacist_login.dart";
 import "ui/forgot_password.dart";
+import "ui/user_dashboard.dart";
+import "ui/phar_dashboard.dart";
+import "ui/case_card.dart";
+import "ui/case_detailed_view.dart";
 import "core/colors.dart";
 
 //Firebase initialisation
@@ -52,7 +56,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/signUp': (context) => const UserSignupPage(),
         '/pharmacistLogin': (context) => const PharmacistLoginPage(),
-        '/forgotPassword': (context) => const ForgotPasswordPage(), // Placeholder, replace with actual Forgot Password page
+        '/forgotPassword': (context) => const ForgotPasswordPage(),
+        '/userDashboard': (context) => const UserDashboardPage(userEmail: 'placeholder'),
+        '/pharDashboard': (context) => const PharDashboardPage(staffEmail: 'placeholder')
       },
     );
   }

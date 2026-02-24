@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'forgot_password.dart';
+import 'phar_dashboard.dart';
 
 class PharmacistLoginPage extends StatefulWidget {
   const PharmacistLoginPage({super.key});
@@ -12,6 +15,9 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
   final staffIdController = TextEditingController();
   final passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void dispose() {
@@ -145,14 +151,23 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
                 width: 100,
                 height: 40,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00796B),
                   ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Login',
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
                 ),
               ),
 
@@ -189,6 +204,98 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _handleLogin() async {
+    final staffId = staffIdController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (staffId.isEmpty || password.isEmpty) {
+      _showErrorDialog('Error', 'Please enter staff ID and password');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Query Firestore to find staff member by staffId
+      final QuerySnapshot querySnapshot = await _firestore
+          .collection('pharmacists')
+          .where('staffId', isEqualTo: staffId)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        if (mounted) {
+          _showErrorDialog('Error', 'Staff ID not found. Contact administrator.');
+        }
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      // Get the email from the staff document
+      final staffDoc = querySnapshot.docs.first;
+      final staffEmail = staffDoc['email'] as String?;
+
+      if (staffEmail == null) {
+        if (mounted) {
+          _showErrorDialog('Error', 'Staff email not found in database.');
+        }
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      // Authenticate using email and password
+      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: staffEmail,
+        password: password,
+      );
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PharDashboardPage(staffEmail: staffEmail),
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'Login failed';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'Staff account not found. Contact administrator.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password. Try again.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Invalid email address.';
+      }
+      if (mounted) {
+        _showErrorDialog('Login Error', errorMessage);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog('Error', 'An error occurred: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }

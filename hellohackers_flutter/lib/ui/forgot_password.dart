@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hellohackers_flutter/core/colors.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -42,8 +43,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 fit: BoxFit.contain,
               ),
 
-              const SizedBox(height: 10),
-
               // App name
               const Text(
                 'MediAI',
@@ -61,7 +60,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
 
               // Email label + input
               Row(
@@ -71,7 +70,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   const SizedBox(width: 20),
                   const Text(
                     'Email:',
-                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: Colors.white),
+                    style: TextStyle(fontSize: 20, fontFamily: 'winterdraw', color: AppColors.black),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -94,16 +93,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ],
               ),
 
-              const SizedBox(height: 50),
+              const SizedBox(height: 30),
 
               // Next Button
               SizedBox(
                 width: 100,
                 height: 40,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {}, //to add pop up for email sent confirmation
+                  //: isLoading ? null: _nextstep
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00796B),
+                    backgroundColor: AppColors.teal700,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
                   child: const Text(
                     'Next',
@@ -113,6 +114,30 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               ),
 
               const Spacer(flex: 3),
+
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: AppColors.teal700,
+              //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              //     ),
+              //     child: _isLoading
+              //         ? const SizedBox(
+              //             width: 20,
+              //             height: 20,
+              //             child: CircularProgressIndicator(
+              //               strokeWidth: 2,
+              //               valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+              //             ),
+              //           )
+              //         : const Text(
+              //             'Login',
+              //             style: TextStyle(
+              //               fontSize: 20,
+              //               fontWeight: FontWeight.bold,
+              //               color: AppColors.white,
+              //             ),
+              //           ),
+              //   ),
+              // ),
 
               // Back Button
               Padding(
@@ -125,7 +150,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00796B),
+                        backgroundColor: AppColors.teal700,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                       ),
                       child: const Text(
                         'Back',
