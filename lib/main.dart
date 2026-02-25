@@ -14,24 +14,24 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'OTC Medicine App',
       theme: ThemeData(
-        // Darker blue as primary color
+        // Medium blue as primary color
         primarySwatch: Colors.blue,
-        primaryColor: const Color(0xFF1976D2), // Darker blue
+        primaryColor: const Color(0xFF64B5F6), // Medium blue
         scaffoldBackgroundColor: Colors.white,
         
         // Color scheme
         colorScheme: ColorScheme.fromSwatch(
           primarySwatch: Colors.blue,
         ).copyWith(
-          primary: const Color(0xFF1976D2), // Darker blue
+          primary: const Color(0xFF64B5F6), // Medium blue
           secondary: Colors.green,
           surface: Colors.white,
         ),
         
         // App Bar Theme
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1976D2), // Darker blue app bar
-          foregroundColor: Colors.white, // White text/icons for contrast
+          backgroundColor: Color(0xFF64B5F6), // Medium blue app bar
+          foregroundColor: Colors.white,
           elevation: 4,
           centerTitle: true,
         ),
@@ -51,32 +51,27 @@ class MyApp extends StatelessWidget {
         // Text Button Theme
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF1976D2), // Darker blue for text buttons
+            foregroundColor: const Color(0xFF64B5F6), // Medium blue
           ),
         ),
         
-        // Input Decoration Theme - DARKER BORDERS
+        // Input Decoration Theme
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.black54, width: 1.5), // Darker border
+            borderSide: const BorderSide(color: Colors.black54, width: 1.5),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.black45, width: 1.5), // Darker enabled border
+            borderSide: const BorderSide(color: Colors.black45, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.green, width: 2.5), // Green when focused
+            borderSide: const BorderSide(color: Colors.green, width: 2.5),
           ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.red, width: 1.5),
-          ),
-          labelStyle: const TextStyle(color: Color(0xFF1976D2)), // Darker blue labels
-          prefixIconColor: const Color(0xFF1976D2), // Darker blue icons
-          suffixIconColor: const Color(0xFF1976D2), // Darker blue suffix icons
-          hintStyle: TextStyle(color: Colors.grey[600]),
+          labelStyle: const TextStyle(color: Color(0xFF64B5F6)), // Medium blue
+          prefixIconColor: const Color(0xFF64B5F6),
+          suffixIconColor: const Color(0xFF64B5F6),
         ),
         
         // Card Theme
@@ -90,7 +85,7 @@ class MyApp extends StatelessWidget {
         
         useMaterial3: true,
       ),
-      home: const PaymentPage(),
+      home: const ProfilePage(), // Change to PaymentPage() to test payment page
       debugShowCheckedModeBanner: false,
     );
   }
