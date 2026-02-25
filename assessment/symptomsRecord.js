@@ -4,7 +4,6 @@ import admin from "firebase-admin";
 export async function recordSymptoms(caseId, message) {
     await db.collection("cases").doc(caseId).update({
         userSymptoms: admin.firestore.FieldValue.arrayUnion({
-            role: "user",
             content: message,
             timestamp:admin.firestore.FieldValue.serverTimestamp()
         }),
