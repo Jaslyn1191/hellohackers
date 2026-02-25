@@ -28,7 +28,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime(2000),
-      firstDate: DateTime(1950),
+      firstDate: DateTime(1920),
       lastDate: DateTime.now(),
     );
     if (picked != null) {
@@ -179,6 +179,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                 ],
               ),
             ),
+            const SizedBox(height: 10),
 
             Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -197,6 +198,8 @@ class _UserSignupPageState extends State<UserSignupPage> {
                             ),
                           ),
                         ),
+
+
                         const SizedBox(width: 16),
                         SizedBox(
                           width: 220,
@@ -204,7 +207,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                             onTap: () => _selectDate(context),
                             child: Container(
                               height: 40,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               color: AppColors.white,
                               child: Row(
                                 children: [

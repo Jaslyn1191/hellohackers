@@ -41,7 +41,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/chat_background.png'),
+            image: AssetImage('assets/images/background_2.png'),
             fit: BoxFit.cover,
           ),
         ),

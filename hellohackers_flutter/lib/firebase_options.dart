@@ -83,4 +83,5 @@ class DefaultFirebaseOptions {
     authDomain: 'ai-otc-prototype.firebaseapp.com',
     storageBucket: 'ai-otc-prototype.firebasestorage.app',
   );
+
 }
