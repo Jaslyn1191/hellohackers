@@ -19,7 +19,7 @@ export async function reviewCases(caseId, selection) {
 
   await db.collection("cases").doc(caseId).update({
     status: newStatus,
-    reviewedAt: new Date()
+    reviewedAt: admin.firestore.FieldValue.serverTimestamp()
   });
 
   return {

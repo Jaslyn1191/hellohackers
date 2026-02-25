@@ -1,13 +1,10 @@
 import db from "./firebase-admin.js"; 
 import admin from "firebase-admin";
 
-export async function sendToPharmacist({ caseId, userIssue }) {
+export async function sendToPharmacist({ caseId }) {
   try {
-    await db.collection("user_report").add({
-      caseId,
-      userIssue,
+    await db.collection("cases").update({
       status: "Pending Pharmacist Review",
-      callRequired: false,
       // create auto timestamp
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
@@ -17,8 +14,12 @@ export async function sendToPharmacist({ caseId, userIssue }) {
     const pharmacistMessage = `New patient report ready for review:\nCase ID: ${caseId}\nIssue: ${userIssue}\nStatus: Pending`
 
     // successfully send to pharmacist
-    return { success: true, userMessage, pharmacistMessage };
+    return { success: true, userMessage };
   } catch (error) {
     console.error("Failed to send to pharmacist", error)
+    return {
+      success: false,
+      error: error.message
+    };
   }
 }
