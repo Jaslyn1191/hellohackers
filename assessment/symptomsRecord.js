@@ -6,7 +6,7 @@ export async function recordSymptoms(caseId, message) {
         userSymptoms: admin.firestore.FieldValue.arrayUnion({
             role: "user",
             content: message,
-            timestamp:admin.firebstore.FieldValue.serverTimestamp()
+            timestamp:admin.firestore.FieldValue.serverTimestamp()
         }),
         updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
