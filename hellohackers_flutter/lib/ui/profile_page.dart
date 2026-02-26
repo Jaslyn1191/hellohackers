@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hellohackers_flutter/core/colors.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -18,7 +19,6 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isLoading = true;
   bool _isSaving = false;
   
-  // Get current user from Firebase Auth
   final User? _currentUser = FirebaseAuth.instance.currentUser;
 
   @override
@@ -27,7 +27,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadUserProfile();
   }
 
-  // Load existing profile data from Firestore
   Future<void> _loadUserProfile() async {
     if (_currentUser == null) {
       setState(() => _isLoading = false);
@@ -46,40 +45,19 @@ class _ProfilePageState extends State<ProfilePage> {
           _dobController.text = doc['dob'] ?? '';
           _addressController.text = doc['address'] ?? '';
         });
-        
-        // Show welcome back message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Welcome back, ${doc['name'] ?? 'User'}!'),
-            backgroundColor: const Color(0xFF64B5F6),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
       }
     } catch (e) {
       print('Error loading profile: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error loading profile: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  // Save profile data to Firestore
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
     
     if (_currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please log in first'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar('Please log in first', Colors.red);
       return;
     }
 
@@ -95,34 +73,25 @@ class _ProfilePageState extends State<ProfilePage> {
         'address': _addressController.text,
         'email': _currentUser!.email,
         'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true)); // merge: true updates only provided fields
+      }, SetOptions(merge: true));
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Profile saved successfully!'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-      
-      // Print to console for verification
-      print('✅ Profile saved for user: ${_currentUser!.email}');
-      print('📝 Name: ${_nameController.text}');
-      print('📝 DOB: ${_dobController.text}');
-      print('📝 Address: ${_addressController.text}');
+      _showSnackBar('Profile saved successfully!', Colors.green);
       
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error saving profile: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      print('❌ Error saving to Firebase: $e');
+      _showSnackBar('Error saving profile: $e', Colors.red);
     } finally {
       setState(() => _isSaving = false);
     }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -135,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF64B5F6), // Changed to medium blue
+              primary: AppColors.lightBlue,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -151,66 +120,14 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // Sign out method
   Future<void> _signOut() async {
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey[600],
-            ),
-            child: const Text('CANCEL'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text('SIGN OUT'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      try {
-        await FirebaseAuth.instance.signOut();
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Signed out successfully'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoginPage(),
-            ),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error signing out: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(context, '/userLogin');
       }
+    } catch (e) {
+      _showSnackBar('Error signing out: $e', Colors.red);
     }
   }
 
@@ -225,404 +142,154 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('User Profile'),
-          backgroundColor: const Color(0xFF64B5F6),
-          foregroundColor: Colors.white,
-        ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(color: Color(0xFF64B5F6)),
-              SizedBox(height: 16),
-              Text('Loading profile...'),
-            ],
-          ),
-        ),
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'User Profile',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color(0xFF64B5F6),
+        title: const Text('User Profile'),
+        backgroundColor: AppColors.lightBlue,
         foregroundColor: Colors.white,
-        centerTitle: true,
+        elevation: 0,
         actions: [
-          // User email indicator
-          if (_currentUser != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      _currentUser!.email?.split('@').first ?? 'User',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           IconButton(
             icon: const Icon(Icons.notifications),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('No new notifications'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
+            onPressed: () {},
           ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              const Color(0xFF64B5F6).withValues(alpha: 0.1),
-              Colors.white,
-            ],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                // Profile Header with Avatar
-                Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: const Color(0xFF64B5F6),
-                        child: Text(
-                          _nameController.text.isNotEmpty
-                              ? _nameController.text[0].toUpperCase()
-                              : (_currentUser?.email?[0].toUpperCase() ?? '?'),
-                          style: const TextStyle(
-                            fontSize: 40,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 15,
-                          backgroundColor: Colors.green,
-                          child: const Icon(
-                            Icons.edit,
-                            size: 15,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Email display (read-only)
-                if (_currentUser != null)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.email, color: Color(0xFF64B5F6), size: 20),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Email',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              Text(
-                                _currentUser!.email ?? 'No email',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                const SizedBox(height: 16),
-
-                // Name Field
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Full Name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.black54, width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.black45, width: 1.5),
-                    ),
-                    prefixIcon: const Icon(Icons.person, color: Color(0xFF64B5F6)),
-                  ),
-                  keyboardType: TextInputType.name,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Date of Birth Field
-                TextFormField(
-                  controller: _dobController,
-                  decoration: InputDecoration(
-                    labelText: 'Date of Birth',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.black54, width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.black45, width: 1.5),
-                    ),
-                    prefixIcon: const Icon(Icons.calendar_today, color: Color(0xFF64B5F6)),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.edit_calendar, color: Color(0xFF64B5F6)),
-                      onPressed: () => _selectDate(context),
-                    ),
-                  ),
-                  readOnly: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select your date of birth';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Address Field
-                TextFormField(
-                  controller: _addressController,
-                  decoration: InputDecoration(
-                    labelText: 'Address (Optional)',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.black54, width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.black45, width: 1.5),
-                    ),
-                    prefixIcon: const Icon(Icons.home, color: Color(0xFF64B5F6)),
-                  ),
-                  keyboardType: TextInputType.streetAddress,
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 24),
-
-                // Save Button
-                ElevatedButton(
-                  onPressed: _isSaving ? null : _saveProfile,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: _isSaving
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Save Profile',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                ),
-                const SizedBox(height: 16),
-
-                // Cancel Button
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(fontSize: 16, color: Color(0xFF64B5F6)),
-                    ),
-                  ),
-                ),
-
-                const Divider(height: 32),
-
-                // Sign Out Button
-                Center(
-                  child: Column(
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: _signOut,
-                        icon: const Icon(Icons.logout, size: 18),
-                        label: const Text(
-                          'Sign Out',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red, width: 1.5),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Version 1.0.0',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Temporary Login Page (for testing)
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: const Color(0xFF64B5F6),
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
             children: [
-              const Icon(
-                Icons.medical_services,
-                size: 80,
-                color: Color(0xFF64B5F6),
+              // Profile Header
+              Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: AppColors.lightBlue,
+                      child: Text(
+                        _nameController.text.isNotEmpty
+                            ? _nameController.text[0].toUpperCase()
+                            : (_currentUser?.email?[0].toUpperCase() ?? '?'),
+                        style: const TextStyle(
+                          fontSize: 40,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleAvatar(
+                        radius: 15,
+                        backgroundColor: AppColors.green,
+                        child: const Icon(Icons.edit, size: 15, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 24),
-              const Text(
-                'You have been signed out',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              const SizedBox(height: 20),
+
+              // Email display
+              if (_currentUser != null)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.email, color: AppColors.lightBlue, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Email', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                            Text(_currentUser!.email ?? 'No email'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+
+              // Name Field
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Full Name',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: Icon(Icons.person, color: AppColors.lightBlue),
+                ),
+                validator: (value) => value?.isEmpty ?? true ? 'Enter your name' : null,
               ),
               const SizedBox(height: 16),
-              const Text(
-                'For testing, use the test login below:',
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 32),
-              // Test login button
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    // Create a test anonymous account for now
-                    // In production, you'd have email/password or Google sign-in
-                    UserCredential userCredential = await FirebaseAuth.instance.signInAnonymously();
-                    
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Logged in as: ${userCredential.user?.uid.substring(0, 8)}...'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                      
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfilePage(),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Login failed: $e'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(200, 45),
+
+              // DOB Field
+              TextFormField(
+                controller: _dobController,
+                decoration: InputDecoration(
+                  labelText: 'Date of Birth',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: Icon(Icons.calendar_today, color: AppColors.lightBlue),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.edit_calendar, color: AppColors.lightBlue),
+                    onPressed: () => _selectDate(context),
+                  ),
                 ),
-                child: const Text('Test Login (Anonymous)'),
+                readOnly: true,
+                validator: (value) => value?.isEmpty ?? true ? 'Select your DOB' : null,
               ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () {
-                  // For now, just go to profile without login for testing
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfilePage(),
-                    ),
-                  );
-                },
-                child: const Text('Skip Login (Testing Only)'),
+              const SizedBox(height: 16),
+
+              // Address Field
+              TextFormField(
+                controller: _addressController,
+                decoration: InputDecoration(
+                  labelText: 'Address (Optional)',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: Icon(Icons.home, color: AppColors.lightBlue),
+                ),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 24),
+
+              // Save Button
+              ElevatedButton(
+                onPressed: _isSaving ? null : _saveProfile,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: AppColors.green,
+                  foregroundColor: Colors.white,
+                ),
+                child: _isSaving
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Save Profile', style: TextStyle(fontSize: 18)),
+              ),
+              const SizedBox(height: 16),
+
+              // Sign Out Button
+              Center(
+                child: OutlinedButton.icon(
+                  onPressed: _signOut,
+                  icon: const Icon(Icons.logout, size: 18),
+                  label: const Text('Sign Out'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                  ),
+                ),
               ),
             ],
           ),
