@@ -2,7 +2,7 @@ import 'dart:isolate';
 import 'package:hellohackers_flutter/core/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:hellohackers_flutter/api_service.dart';
-
+import '../case_id_gen.dart';
 
 class UserDashboardPage extends StatefulWidget {
   final String userEmail;
@@ -16,6 +16,8 @@ class UserDashboardPage extends StatefulWidget {
 class _UserDashboardPageState extends State<UserDashboardPage> {
   final messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  String? curCaseId;
 
   String responseText = "";
   bool _isLoading = false;
@@ -114,7 +116,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                         'Start chatting with MediBot!',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey[600],
+                          color: AppColors.grey,
                         ),
                       ),
                     )
@@ -136,11 +138,23 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
               color: Colors.transparent,
               child: Row(
                 children: [
+                  // if (curCaseId != null)
+                  //   Padding(
+                  //     padding: const EdgeInsets.symmetric(vertical: 8),
+                  //     child: Text(
+                  //       "Case ID: $curCaseId",
+                  //       style: const TextStyle(
+                  //         fontSize: 14,
+                  //         fontWeight: FontWeight.bold,
+                  //         color: AppColors.black,
+                  //       ),
+                  //     ),
+                  //   ),
                   Expanded(
                     child: Container(
                       height: 45,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.white,
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: TextField(
@@ -148,7 +162,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                         style: const TextStyle(fontSize: 16),
                         decoration: InputDecoration(
                           hintText: 'Send a message',
-                          hintStyle: TextStyle(color: Colors.grey[400]),
+                          hintStyle: TextStyle(color: AppColors.grey),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         ),
@@ -159,6 +173,12 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
                   GestureDetector(
                     onTap: () async {
+
+                      if (curCaseId == null) {
+                          curCaseId = await CaseService.generateCaseId();
+                          // await ChatService.createCase(widget.userEmail, curCaseId!);
+                        }
+
                       String userMessage = messageController.text;
 
                       setState(() {
@@ -178,7 +198,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                         }
                       });
 
-                      String aiReply = await ApiService.sendMessage(userMessage);
+                      String aiReply = await ApiService.sendMessage(userMessage, curCaseId!);
 
                       setState(() {
                         messages.add(ChatMessage(text: aiReply, isUser: false));
@@ -225,7 +245,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: message.isUser ? const Color(0xFF00796B) : Colors.grey[300],
+          color: message.isUser ? AppColors.teal700 : AppColors.grey,
           borderRadius: BorderRadius.circular(12),
         ),
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
@@ -233,7 +253,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
           message.text,
           style: TextStyle(
             fontSize: 15,
-            color: message.isUser ? Colors.white : Colors.black87,
+            color: message.isUser ? AppColors.white : AppColors.black,
           ),
         ),
       ),
@@ -248,7 +268,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
-        color: Colors.white,
+        color: AppColors.white,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
