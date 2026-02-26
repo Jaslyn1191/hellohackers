@@ -1,39 +1,134 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PaymentPage extends StatelessWidget {
   const PaymentPage({super.key});
 
   Future<void> _processPayment(BuildContext context) async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to continue'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Processing payment...'),
-        backgroundColor: const Color(0xFF64B5F6), // Medium blue
+        backgroundColor: const Color(0xFF64B5F6),
         behavior: SnackBarBehavior.floating,
       ),
     );
     
+    // Simulate payment processing
     await Future.delayed(const Duration(seconds: 2));
     
-    if (context.mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Payment Successful!'),
-          content: const Text('Your prescription has been paid for. You will receive a confirmation shortly.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-              child: const Text('OK', style: TextStyle(color: Color(0xFF64B5F6))),
+    try {
+      // Create order data
+      final orderData = {
+        'userId': user.uid,
+        'userEmail': user.email ?? 'anonymous@test.com',
+        'items': [
+          {
+            'name': 'Paracetamol 500mg',
+            'price': 5.99,
+            'quantity': 1,
+            'dosage': '2 tablets • Once daily'
+          },
+          {
+            'name': 'Vitamin C 1000mg',
+            'price': 12.50,
+            'quantity': 1,
+            'dosage': '1 tablet • Daily'
+          },
+          {
+            'name': 'Consultation Fee',
+            'price': 0.00,
+            'quantity': 1,
+            'type': 'free'
+          },
+        ],
+        'totalAmount': 18.49,
+        'status': 'paid',
+        'paymentMethod': 'card',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      // Save to Firestore
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('orders')
+          .add(orderData);
+
+      // Print for verification
+      print('✅ Order saved to Firebase!');
+      print('📁 Order ID: ${docRef.id}');
+      print('💰 Amount: \$18.49');
+      print('👤 User: ${user.email ?? user.uid}');
+
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Payment Successful!'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Your order has been placed successfully.'),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Order ID: ${docRef.id.substring(0, 8)}...',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text('Total: \$18.49'),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                child: const Text('OK', style: TextStyle(color: Color(0xFF64B5F6))),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      print('❌ Error saving order: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error processing payment: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
+  // ... rest of your existing build method stays exactly the same ...
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +137,7 @@ class PaymentPage extends StatelessWidget {
           'Checkout',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF64B5F6), // Medium blue app bar
+        backgroundColor: const Color(0xFF64B5F6),
         foregroundColor: Colors.white,
         centerTitle: true,
         elevation: 4,
@@ -53,7 +148,7 @@ class PaymentPage extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF64B5F6).withValues(alpha: 0.1), // Medium blue tint
+              const Color(0xFF64B5F6).withValues(alpha: 0.1),
               Colors.white,
             ],
           ),
@@ -62,7 +157,7 @@ class PaymentPage extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Order Summary Card - Takes 60% of space
+              // Order Summary Card
               Expanded(
                 flex: 6,
                 child: Card(
@@ -103,7 +198,7 @@ class PaymentPage extends StatelessWidget {
                         ),
                         const Divider(height: 20),
 
-                        // Medicine Items - Make this section scrollable if needed
+                        // Medicine Items
                         Expanded(
                           child: SingleChildScrollView(
                             child: Column(
@@ -138,7 +233,7 @@ class PaymentPage extends StatelessWidget {
 
                         const SizedBox(height: 8),
 
-                        // Total Section - Fixed at bottom
+                        // Total Section
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -175,7 +270,7 @@ class PaymentPage extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // Payment Methods Section - Takes 15% of space
+              // Payment Methods Section
               Expanded(
                 flex: 2,
                 child: Container(
@@ -228,7 +323,7 @@ class PaymentPage extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Pay Now Button - Fixed height
+              // Pay Now Button
               SizedBox(
                 height: 50,
                 width: double.infinity,
