@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+
+
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -19,6 +23,51 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+
+    void _showNotice(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleForgotPassword() async {
+    String email = emailController.text.trim();
+
+    if (email.isEmpty) {
+      _showNotice("Error", "Please enter your email.");
+      return;
+    }
+
+    try {
+
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+        _showNotice("Success",
+            "Password reset instructions have been sent to your email.");
+
+      } on FirebaseAuthException catch (e) {
+          if (e.code == 'user-not-found') {
+            _showNotice("User Not Found", e.toString());
+          }
+        }
+      catch (e) {
+        _showNotice("Error", e.toString());
+      }
+  }
+
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -100,8 +149,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 width: 100,
                 height: 40,
                 child: ElevatedButton(
-                  onPressed: () {}, //to add pop up for email sent confirmation
-                  //: isLoading ? null: _nextstep
+                  onPressed: () => _handleForgotPassword(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.teal700,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -114,30 +162,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               ),
 
               const Spacer(flex: 3),
-
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: AppColors.teal700,
-              //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-              //     ),
-              //     child: _isLoading
-              //         ? const SizedBox(
-              //             width: 20,
-              //             height: 20,
-              //             child: CircularProgressIndicator(
-              //               strokeWidth: 2,
-              //               valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
-              //             ),
-              //           )
-              //         : const Text(
-              //             'Login',
-              //             style: TextStyle(
-              //               fontSize: 20,
-              //               fontWeight: FontWeight.bold,
-              //               color: AppColors.white,
-              //             ),
-              //           ),
-              //   ),
-              // ),
 
               // Back Button
               Padding(

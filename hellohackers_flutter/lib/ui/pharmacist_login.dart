@@ -284,8 +284,6 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
         errorMessage = 'Staff account not found. Contact administrator.';
       } else if (e.code == 'wrong-password') {
         errorMessage = 'Wrong password. Try again.';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'Invalid email address.';
       }
       if (mounted) {
         _showErrorDialog('Login Error', errorMessage);
