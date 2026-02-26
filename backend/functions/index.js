@@ -100,5 +100,91 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+async function generateAiSuggestion(conversation) {
+  const symptomsText = conversation
+    .filter(msg => msg.role === "user")
+    .map(msg => msg.content)
+    .join("\n");
+
+  if (!symptomsText) return null;
+
+  const prompt = `
+You are a pharmacy Ai assistant.
+
+Based on the patient's symptoms below:
+- Suggest Possible OTC medications
+- Include TYPICAL OTC DOSAGE RANGES (not prescriptions)
+- Do NOT personalize dosage
+- Do NOT prescribe medication
+
+Return STRICT JSON ONLY in this format:
+
+{
+  "possibleOTC": [
+    {
+      "name": "",
+      "typicalDoseRange": "",
+      "notes": ""
+    }
+  ],
+  "warnings": [],
+  "urgencyLevel": "low | medium | high",
+  "disclaimer": "This is Ai-generated suggestion. Pharmacist must verify before dispensing."
+}
+
+Patient symptoms:
+${symptomsText}
+`;
+
+  const result = await model.generateContent(prompt);
+
+  try {
+    return JSON.parse(result.response.text());
+  } catch (err) {
+    console.error("Failed to parse AI suggestion");
+    return null;
+  }
+}
+
+app.post("/ai-suggestion", async (req, res) => {
+  try {
+    const { caseId } = req.body;
+
+    if (!caseId) {
+      return res.status(400).json({ error: "caseId is required" });
+    }
+
+    const caseRef = db.collection("cases").doc(caseId);
+    const caseGet = await caseRef.get();
+
+    if (!caseGet.exists) {
+      return res.status(404).json({ error: "Case not found" });
+    }
+
+    const { conversation = [] } = caseGet.data();
+
+    const aiSuggestion = await generateAiSuggestion(conversation);
+
+    if (!aiSuggestion) {
+      return res.status(400).json({ error: "No symptoms available for analysis" });
+    }
+
+    // Save AI suggestion for pharmacist review
+    await caseRef.update({
+      aiSuggestion,
+      aiSuggestedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    res.json({
+      success: true,
+      aiSuggestion
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "AI suggestion failed" });
+  }
+});
+
 // Export as Firebase Function
 exports.api = functions.https.onRequest(app);
