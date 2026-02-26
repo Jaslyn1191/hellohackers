@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'profile_page.dart';
 import 'payment_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // test firebase connection
+  try {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  print('✅ Firebase connected successfully!');
+  print('📁 Project ID: ${Firebase.app().options.projectId}');
+} catch (e) {
+  print('❌ Firebase connection failed: $e');
+}
+
+  // Initialize Firebase - this connects to their project
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   runApp(const MyApp());
 }
 
