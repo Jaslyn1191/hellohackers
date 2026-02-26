@@ -5,7 +5,7 @@ import 'package:hellohackers_flutter/core/colors.dart';
 // import 'user_signup.dart';
 // import 'pharmacist_login.dart';
 // import 'forgot_password.dart';
-// import 'user_dashboard.dart';
+import 'user_dashboard.dart';
 
 class UserLoginPage extends StatefulWidget {
   const UserLoginPage({super.key});
@@ -296,7 +296,6 @@ class _UserLoginPageState extends State<UserLoginPage> {
           MaterialPageRoute(
             builder: (context) => UserDashboardPage(
               userEmail: email,
-              age: _age ?? 0,
             ),
           ),
 );
