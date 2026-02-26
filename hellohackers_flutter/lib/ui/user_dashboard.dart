@@ -1,4 +1,8 @@
+import 'dart:isolate';
+import 'package:hellohackers_flutter/core/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:hellohackers_flutter/api_service.dart';
+
 
 class UserDashboardPage extends StatefulWidget {
   final String userEmail;
@@ -11,31 +15,13 @@ class UserDashboardPage extends StatefulWidget {
 
 class _UserDashboardPageState extends State<UserDashboardPage> {
   final messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  String responseText = "";
+  bool _isLoading = false;
+
   final List<ChatMessage> messages = [];
 
-  @override
-  void dispose() {
-    messageController.dispose();
-    super.dispose();
-  }
-
-  /// REMOVE HARDCODING
-  void _sendMessage() {
-    if (messageController.text.isNotEmpty) {
-      setState(() {
-        messages.add(ChatMessage(
-          text: messageController.text,
-          isUser: true,
-        ));
-        // Simulate bot response
-        messages.add(ChatMessage(
-          text: "Hi! I'm MediBot. How can I help you today?",
-          isUser: false,
-        ));
-      });
-      messageController.clear();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,40 +48,50 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                 children: [
                   const SizedBox(width: 10),
                   // Menu button
+
                   GestureDetector(
-                    onTap: () => _showProfileMenu(),
+                    onTap: () => _showMenu(),
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10, top: 20),
                       child: Icon(
                         Icons.menu,
-                        color: Colors.white,
+                        color: AppColors.darkTeal,
                         size: 28,
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Image.asset(
-                    'assets/images/mediai_logo_noname.png',
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.contain,
+                  Padding(
+                  padding: const EdgeInsets.only(
+                    left: 30,  // adjust this
+                    top: 10,   // adjust this
+                  ),
+                    child: Image.asset(
+                      'assets/images/mediai_logo_noname.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                   Expanded(
                     child: Center(
-                      child: Text(
-                        'MediAI',
-                        style: const TextStyle(
-                          fontSize: 35,
-                          fontFamily: 'nextsunday',
-                          color: Color(0xFF00796B),
-                        ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 70, top: 20), // adjust this
+                          child: Text(
+                            'MediAI',
+                            style: const TextStyle(
+                              fontSize: 35,
+                              fontFamily: 'nextsunday',
+                              color: AppColors.darkTeal,
+                            ),
+                          ),
                       ),
                     ),
                   ),
 
 
                   GestureDetector(
-                    onTap: () {}, //add on profile page route later
+                    onTap: () => _showProfile(),
                     child: Padding(
                       padding: const EdgeInsets.only(right: 10, top: 10),
                       child: Image.asset(
@@ -122,7 +118,9 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                         ),
                       ),
                     )
-                  : ListView.builder(
+
+                    : ListView.builder(
+                      controller: _scrollController,
                       padding: const EdgeInsets.all(8),
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
@@ -158,18 +156,53 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                     ),
                   ),
                   const SizedBox(width: 8),
+
                   GestureDetector(
-                    onTap: _sendMessage,
+                    onTap: () async {
+                      String userMessage = messageController.text;
+
+                      setState(() {
+                        messages.add(ChatMessage(
+                          text: messageController.text,
+                          isUser: true,
+                        ));
+                        _isLoading = true;
+                      });
+                      messageController.clear();
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_scrollController.hasClients) {
+                          _scrollController.jumpTo(
+                            _scrollController.position.maxScrollExtent,
+                          );
+                        }
+                      });
+
+                      String aiReply = await ApiService.sendMessage(userMessage);
+
+                      setState(() {
+                        messages.add(ChatMessage(text: aiReply, isUser: false));
+                        _isLoading = false;
+                      });
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (_scrollController.hasClients) {
+                            _scrollController.jumpTo(
+                              _scrollController.position.maxScrollExtent,
+                            );
+                          }
+                      });
+                    },
                     child: Container(
                       width: 45,
                       height: 45,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00796B),
+                        color: AppColors.blue,
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: const Icon(
                         Icons.send,
-                        color: Colors.white,
+                        color: AppColors.white,
                         size: 20,
                       ),
                     ),
@@ -207,7 +240,11 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     );
   }
 
-  void _showProfileMenu() {
+  void _showMenu() {
+
+  }
+///merge with jennifer
+  void _showProfile() {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(

@@ -272,10 +272,11 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
 
 //pharDashboard
       if (mounted) {
-        Navigator.pushNamed(
+        Navigator.pushReplacement(
           context,
-          '/pharDashboard',
-          arguments: staffEmail,
+          MaterialPageRoute(
+            builder: (context) => PharDashboardPage(staffEmail: staffEmail),
+          ),
         );
       }
     } on FirebaseAuthException catch (e) {
