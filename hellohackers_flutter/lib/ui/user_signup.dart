@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserSignupPage extends StatefulWidget {
   const UserSignupPage({super.key});
@@ -13,9 +14,13 @@ class _UserSignupPageState extends State<UserSignupPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final dobController = TextEditingController();
-  int? _age;
   bool _obscurePassword = true;
 
+  int? _age;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+
+  //clean up (when change pg)
   @override
   void dispose() {
     emailController.dispose();
@@ -23,6 +28,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
     dobController.dispose();
     super.dispose();
   }
+
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -34,12 +40,10 @@ class _UserSignupPageState extends State<UserSignupPage> {
     if (picked != null) {
       setState(() {
         dobController.text = '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+
         // calculate age
         final now = DateTime.now();
         int years = now.year - picked.year;
-        if (now.month < picked.month || (now.month == picked.month && now.day < picked.day)) {
-          years -= 1;
-        }
         _age = years;
       });
     }
@@ -59,6 +63,8 @@ class _UserSignupPageState extends State<UserSignupPage> {
             fit: BoxFit.cover,
           ),
         ),
+
+
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -84,7 +90,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                     color: AppColors.white,
                     shadows: [
                       Shadow(
-                        color: Color(0xFF004D40),
+                        color: AppColors.darkTeal,
                         blurRadius: 20,
                       ),
                     ],
@@ -95,50 +101,50 @@ class _UserSignupPageState extends State<UserSignupPage> {
 
                 // Email label + input
               Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 80,
-                            height: 40,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Email:',
-                                style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
-
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Container(
-                              height: 40,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              color: AppColors.white,
-                              child: TextField(
-                                controller: emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                style: const TextStyle(fontSize: 18),
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Enter email',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                const SizedBox(height: 20),
-
-                // Password label + input
-                Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 80,
+                    height: 40,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        'Email:',
+                        style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      color: AppColors.white,
+                      child: TextField(
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        style: const TextStyle(fontSize: 18),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Enter email',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Password label + input
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -154,8 +160,9 @@ class _UserSignupPageState extends State<UserSignupPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                    Expanded(
-                      child: Container(
+
+                  Expanded(
+                    child: Container(
                       height: 40,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       color: AppColors.white,
@@ -202,12 +209,13 @@ class _UserSignupPageState extends State<UserSignupPage> {
 
                         const SizedBox(width: 16),
                         SizedBox(
-                          width: 220,
+                          //tried 220 but it overflowed, so stick with 210
+                          width: 210,
                           child: GestureDetector(
                             onTap: () => _selectDate(context),
                             child: Container(
                               height: 40,
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
                               color: AppColors.white,
                               child: Row(
                                 children: [
@@ -241,7 +249,19 @@ class _UserSignupPageState extends State<UserSignupPage> {
                   width: 120,
                   height: 40,
                   child: ElevatedButton(
-                    onPressed: () {},
+
+                    //////////////////////
+                    // onPressed: () async {
+                    //   final userEmail = emailController.text.trim();
+                    //   final userPassword = passwordController.text.trim();
+                    //   setState(() {
+                    //     _emailError = null;
+                    //     _passwordError = null;
+                    //   });
+                    // },
+                    onPressed: _handleSignup,
+                    //////////////////////
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.teal700,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -281,8 +301,88 @@ class _UserSignupPageState extends State<UserSignupPage> {
       ),
     );
   }
-}
 
+  Future<void> _handleSignup() async {
+    final userEmail = emailController.text.trim();
+    final userPassword = passwordController.text.trim();
+    final userDob = dobController.text.trim();
+
+    if (userEmail.isEmpty || userPassword.isEmpty || userDob.isEmpty) {
+      _showErrorDialog('Error', 'Please fill in all the fields.');
+      return;
+    }
+    //no need isloading as just pop the dialog
+
+    try {
+      // await FirebaseAuth.instance.createUserWithEmailAndPassword(email: userEmail, password: userPassword);
+      UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: userEmail,
+          password: userPassword,
+        );
+
+      String uid = userCredential.user!.uid;
+
+      //create the user in database
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'fullName': "",
+        'age': _age,
+        'dob': dobController.text,
+        'address': "",
+        'email': userEmail,
+      });
+
+      if (!context.mounted) return;
+
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Account Created"),
+          content: const Text(
+            "Your account has been successfully created. You can now log in.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'An error occurred. Please try again.';
+      if (e.code == 'email-already-in-use') {
+        errorMessage = 'This email is already in use. Please use a different email.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'The email address is not valid. Please enter a valid email.';
+      } else if (e.code == 'weak-password') {
+        errorMessage = 'The password is too weak. Please enter a stronger password.';
+      }
+      _showErrorDialog('Signup Failed', errorMessage);
+    } catch (e) {
+      _showErrorDialog('Signup Failed', 'An unexpected error occurred. Please try again.');
+    }
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 // Custom FocusNode that's always disabled for non-editable TextField
 class AlwaysDisabledFocusNode extends FocusNode {
   @override

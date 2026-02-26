@@ -63,10 +63,10 @@ class MyApp extends StatelessWidget {
       home: const UserLoginPage(),
 
       routes: {
+        '/userLogin': (context) => const UserLoginPage(),
         '/signUp': (context) => const UserSignupPage(),
         '/pharmacistLogin': (context) => const PharmacistLoginPage(),
         '/forgotPassword': (context) => const ForgotPasswordPage(),
-        '/userDashboard': (context) => const UserDashboardPage(userEmail: 'placeholder'),
         '/pharDashboard': (context) => const PharDashboardPage(staffEmail: 'placeholder')
       },
     );

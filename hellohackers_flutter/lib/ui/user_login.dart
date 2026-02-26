@@ -2,17 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
-import 'user_signup.dart';
-import 'pharmacist_login.dart';
-import 'forgot_password.dart';
-import 'user_dashboard.dart';
-
-  // getAuth,
-  // connectAuthEmulator,
-  // createUserWithEmailAndPassword,
-  // deleteUser,
-  // signInWithEmailAndPassword
-
+// import 'user_signup.dart';
+// import 'pharmacist_login.dart';
+// import 'forgot_password.dart';
+// import 'user_dashboard.dart';
 
 class UserLoginPage extends StatefulWidget {
   const UserLoginPage({super.key});
@@ -24,6 +17,8 @@ class UserLoginPage extends StatefulWidget {
 class _UserLoginPageState extends State<UserLoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  //hide the password by default
   bool _obscurePassword = true;
   bool _isLoading = false;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -43,12 +38,16 @@ class _UserLoginPageState extends State<UserLoginPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
+
+        ///bg
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/login_background.png'),
             fit: BoxFit.cover,
           ),
         ),
+
+
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -62,7 +61,6 @@ class _UserLoginPageState extends State<UserLoginPage> {
                 height: 200,
                 fit: BoxFit.contain,
               ),
-
               const SizedBox(height: 10),
 
               // App name
@@ -86,48 +84,6 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
               /// Email
               Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 80,
-                            height: 40,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Email:',
-                                style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
-
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Container(
-                              height: 40,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              color: AppColors.white,
-                              child: TextField(
-                                controller: emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                style: const TextStyle(fontSize: 18),
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Enter email',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-              const SizedBox(height: 20),
-
-              // Password label + input
-              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -139,30 +95,27 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: const Text(
-                        'Password:',
+                        'Email:',
                         style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+
                       ),
                     ),
                   ),
                   const SizedBox(width: 16),
-                    Expanded(
-                      child: Container(
+
+                  //Email input
+                  Expanded(
+                    child: Container(
                       height: 40,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       color: AppColors.white,
                       child: TextField(
-                        controller: passwordController,
-                        obscureText: _obscurePassword,
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
                         style: const TextStyle(fontSize: 18),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: InputBorder.none,
-                          hintText: 'Enter password',
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                            ),
-                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                          ),
+                          hintText: 'Enter email',
                         ),
                       ),
                     ),
@@ -171,96 +124,146 @@ class _UserLoginPageState extends State<UserLoginPage> {
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
-              // Buttons: Login and Signup
-              SizedBox(
-                width: 120,
+            // Password label + input
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                  SizedBox(
+                  width: 80,
+                  height: 40,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      'Password:',
+                      style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                    ),
+                  ),
+                ),
+
+            const SizedBox(width: 16),
+
+            Expanded(
+              child: Container(
                 height: 40,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.teal700,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Login',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.white,
-                          ),
-                        ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              SizedBox(
-                width: 120,
-                height: 40,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    '/signUp',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.teal700,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  ),
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                color: AppColors.white,
+                child: TextField(
+                  controller: passwordController,
+                  obscureText: _obscurePassword,
+                  style: const TextStyle(fontSize: 18),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
 
-              const Spacer(flex: 3),
+      const SizedBox(height: 30),
 
-              // Bottom links: left and right
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: (screenWidth - 320) / 2 < 0 ? 20 : (screenWidth - 320) / 2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pushNamed(
-                        context,
-                        '/forgotPassword',
-                      ),
-                      child: const Text(
-                        'Forgot Password',
-                        style: TextStyle(color: AppColors.loginBlue, fontSize: 15), // login_blue-ish
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pushNamed(
-                        context,
-                        '/pharmacistLogin',
-                      ),
-                      child: const Text(
-                        'Login as Pharmacist',
-                        style: TextStyle(color: AppColors.loginBlue, fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      // Buttons: Login and Signup
+      SizedBox(
+        width: 120,
+        height: 40,
+        child: ElevatedButton(
 
-              const SizedBox(height: 12),
+          //not loading
+          onPressed: _isLoading ? null : _handleLogin,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.teal700,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          ),
+          child: _isLoading ? const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+             strokeWidth: 2,
+             valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+            ),
+          )
+          : const Text(
+            'Login',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.white,
+            ),
+          ),
+        ),
+      ),
+
+      const SizedBox(height: 12),
+
+      SizedBox(
+        width: 120,
+        height: 40,
+        child: ElevatedButton(
+        onPressed: () => Navigator.pushNamed(
+          context,
+          '/signUp',
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.teal700,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        ),
+        child: const Text(
+          'Sign Up',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.white,
+          ),
+        ),
+      ),
+    ),
+
+    const Spacer(flex: 3),
+
+    // Bottom links: left and right
+    Padding(
+      padding: EdgeInsets.symmetric(horizontal: (screenWidth - 320) / 2 < 0 ? 20 : (screenWidth - 320) / 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+        TextButton(
+          onPressed: () => Navigator.pushNamed(
+            context,
+            '/forgotPassword',
+          ),
+          child: const Text(
+            'Forgot Password',
+            style: TextStyle(color: AppColors.loginBlue, fontSize: 15), // login_blue-ish
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pushNamed(
+            context,
+            '/pharmacistLogin',
+          ),
+          child: const Text(
+            'Login as Pharmacist',
+            style: TextStyle(color: AppColors.loginBlue, fontSize: 15),
+          ),
+        ),
+      ],
+    ),
+  ),
+
+  const SizedBox(height: 12),
             ],
           ),
         ),
@@ -287,13 +290,18 @@ class _UserLoginPageState extends State<UserLoginPage> {
       );
 
       if (mounted) {
+        // Navigator.pushNamed(context, '/userDashboard');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => UserDashboardPage(userEmail: email),
+            builder: (context) => UserDashboardPage(
+              userEmail: email,
+              age: _age ?? 0,
+            ),
           ),
-        );
+);
       }
+
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'Login failed';
       if (e.code == 'user-not-found') {

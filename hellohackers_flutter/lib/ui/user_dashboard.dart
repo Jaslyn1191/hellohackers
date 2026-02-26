@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class UserDashboardPage extends StatefulWidget {
   final String userEmail;
+
   const UserDashboardPage({super.key, required this.userEmail});
 
   @override
@@ -18,6 +19,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     super.dispose();
   }
 
+  /// REMOVE HARDCODING
   void _sendMessage() {
     if (messageController.text.isNotEmpty) {
       setState(() {
@@ -41,7 +43,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background_2.png'),
+            image: AssetImage('assets/images/chat_background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -90,8 +92,10 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                       ),
                     ),
                   ),
+
+
                   GestureDetector(
-                    onTap: () => _showProfileMenu(),
+                    onTap: () {}, //add on profile page route later
                     child: Padding(
                       padding: const EdgeInsets.only(right: 10, top: 10),
                       child: Image.asset(
