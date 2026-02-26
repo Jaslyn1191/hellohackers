@@ -1,4 +1,9 @@
 // index.js inside functions folder
+import { getPendingCases } from '../hellohackers_flutter/getPendingCases.js';
+import { sendToPharmacist } from '../hellohackers_flutter/sendToPharmacist.js';
+import { reviewCases } from '../hellohackers_flutter/reviewCases.js';
+import { pharmacistCall } from '../hellohackers_flutter/pharmacistCall.js';
+import { pharmacistChat } from '../hellohackers_flutter/pharmacistChat.js';
 
 const functions = require('firebase-functions'); // Firebase v1/v2 API
 const express = require('express');
@@ -151,6 +156,7 @@ app.post("/ai-suggestion", async (req, res) => {
     const { caseId } = req.body;
 
     if (!caseId) {
+      // 400: invalid data
       return res.status(400).json({ error: "caseId is required" });
     }
 
@@ -183,6 +189,62 @@ app.post("/ai-suggestion", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "AI suggestion failed" });
+  }
+});
+
+// Pharmacist routes
+// Get pending cases
+app.get('/pending-cases', async (req, res) => {
+  try {
+    const cases = await getPendingCases();
+    res.json({ success: true, cases });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Send content to pharmacist
+app.post('/send-to-pharmacist', async (req, res) => {
+  try {
+    const { caseId } = req.body;
+    const result = await sendToPharmacist({ caseId });
+    res.json(result);
+  } catch (error) {
+    // 500: Internal Server error
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Review user case
+app.post('/review-case', async (req, res) => {
+  try {
+    const { caseId, selection } = req.body;
+    const result = await reviewCases(caseId, selection);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Pharmacist call user
+app.post('/pharmacist-call', async (req, res) => {
+  try {
+    const { caseId } = req.body;
+    const result = await pharmacistCall(caseId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Pharmacist chat with user
+app.post('/pharmacist-chat', async (req, res) => {
+  try {
+    const { caseId, message } = req.body;
+    const result = await pharmacistChat(caseId, message);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
