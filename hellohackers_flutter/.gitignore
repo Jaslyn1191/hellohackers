@@ -26,26 +26,24 @@ migrate_working_dir/
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
-
 .dart_tool/
-.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
 /coverage/
 
-# Android build
-android/app/build/
-android/.gradle/
+# # Flutter/Dart/Pub related
+# **/doc/api/
+# **/ios/Flutter/.last_build_id
 
-# Gradle
-.gradle/
-
-# Generated Firebase / build artifacts
-**/*.dex
-**/*.class
-
+# .dart_tool/
+# .flutter-plugins
+# .flutter-plugins-dependencies
+# .pub-cache/
+# .pub/
+# /build/
+# /coverage/
 
 # Symbolication related
 app.*.symbols

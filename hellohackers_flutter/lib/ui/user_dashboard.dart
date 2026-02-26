@@ -245,7 +245,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: message.isUser ? AppColors.teal700 : AppColors.grey,
+          color: message.isUser ? AppColors.teal700 : AppColors.white,
           borderRadius: BorderRadius.circular(12),
         ),
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
