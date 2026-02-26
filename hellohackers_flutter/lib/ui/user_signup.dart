@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 
 class UserSignupPage extends StatefulWidget {
   const UserSignupPage({super.key});
@@ -353,6 +354,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
       );
 
     } on FirebaseAuthException catch (e) {
+      print("Firebase error: ${e.code}");
       String errorMessage = 'An error occurred. Please try again.';
       if (e.code == 'email-already-in-use') {
         errorMessage = 'This email is already in use. Please use a different email.';
@@ -362,12 +364,19 @@ class _UserSignupPageState extends State<UserSignupPage> {
         errorMessage = 'The password is too weak. Please enter a stronger password.';
       }
       _showErrorDialog('Signup Failed', errorMessage);
-    } catch (e) {
+    } on PlatformException catch (e) {
+      print("PlatformException: ${e.code}");
+      _showErrorDialog("Signup Failed", e.message ?? "Platform Error");
+
+    }
+    catch (e) {
       _showErrorDialog('Signup Failed', 'An unexpected error occurred. Please try again.');
     }
   }
 
   void _showErrorDialog(String title, String message) {
+
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

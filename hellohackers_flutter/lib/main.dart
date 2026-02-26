@@ -21,7 +21,7 @@ import "core/colors.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseAuth.instance.signOut();
   // print(FirebaseAuth.instance.currentUser);
   runApp(MyApp());

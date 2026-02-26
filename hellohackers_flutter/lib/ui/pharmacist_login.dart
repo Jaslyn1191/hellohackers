@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'forgot_password.dart';
 import 'phar_dashboard.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
 
@@ -263,7 +262,6 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
         return;
       }
 
-      print("Before login");
 
       // Authenticate using email and password
       UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
@@ -271,7 +269,6 @@ class _PharmacistLoginPageState extends State<PharmacistLoginPage> {
         password: password,
       );
 
-      print("after login");
 
 //pharDashboard
       if (mounted) {
