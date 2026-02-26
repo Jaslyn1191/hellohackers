@@ -18,7 +18,7 @@ void main() async {
   print('❌ Firebase connection failed: $e');
 }
 
-  // Initialize Firebase - this connects to their project
+  // Initialize Firebase 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
