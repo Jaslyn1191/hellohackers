@@ -340,7 +340,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
-        color: Colors.white,
+        color: AppColors.white,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -361,6 +361,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
               leading: const Icon(Icons.history, color: AppColors.lightBlue),
               title: const Text('Previous Chats'),
               onTap: () {
+                Navigator.pop(context);
                 _navigateToSidePanel();
               },
             ),
@@ -433,26 +434,6 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
       _scrollToBottom();
     });
   }
-  // void _loadChat(String caseId) async {
-
-  //   ChatService.getCaseMessages(caseId).listen((snapshot) {
-  //     List<ChatMessage> fetchedMessages = snapshot.docs.map((doc) {
-  //       final data = doc.data() as Map<String, dynamic>;
-  //       return ChatMessage(
-  //         text: data['text'] ?? '',
-  //         isUser: data['isUser'] ?? false,
-  //       );
-  //     }).toList();
-
-  //     setState(() {
-  //       curCaseId = caseId;
-  //       messages = fetchedMessages;
-  //     });
-
-  //     _scrollToBottom();
-  //   });
-  // }
-
 
   // NEW: Navigate to full profile page
   void _navigateToProfile() {

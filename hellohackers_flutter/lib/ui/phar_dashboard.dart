@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hellohackers_flutter/core/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PharDashboardPage extends StatefulWidget {
   final String staffEmail;
@@ -26,64 +28,70 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
     final casesToDisplay = _showPending ? pendingCases : resolvedCases;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background image
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/chat_background.png'),
-                fit: BoxFit.cover,
-              ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/chat_background.png'),
+            fit: BoxFit.cover,
             ),
           ),
-
-          // Header with title and logo
-          Column(
+          child: Column(
             children: [
               Container(
-                width: double.infinity,
-                height: 60,
+                height: 80,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/images/background_2.png'),
                     fit: BoxFit.cover,
                   ),
                 ),
-                child: Stack(
+                child: Row(
                   children: [
-                    // Logo on left
-                    Positioned(
-                      left: 10,
-                      top: 0,
-                      child: Image.asset(
-                        'assets/images/mediai_logo_noname.png',
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.contain,
-                      ),
+
+                  const SizedBox(width: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 30,
+                      top: 10,
                     ),
-                    // Title centered
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 15,
-                      child: Center(
+                    child: Image.asset(
+                      'assets/images/mediai_logo_noname.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 70, top: 20),
                         child: Text(
                           'MediAI',
                           style: const TextStyle(
                             fontSize: 35,
                             fontFamily: 'nextsunday',
-                            color: Color(0xFF00796B),
+                            color: AppColors.darkTeal,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  // Profile icon - UPDATED to navigate to full profile
+                  GestureDetector(
+                    onTap: () => _openAdminProf(),
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 10, top: 10),
+                      child: Image.asset(
+                        'assets/images/user_prof.png',
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            ),
               const Spacer(),
             ],
           ),
@@ -193,6 +201,49 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
       ),
     );
   }
+
+  void _openAdminProf() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        color: AppColors.white,
+        child: const Center(
+          child: Text(
+            'Log Out',
+            style: TextStyle(fontSize: 18, color: AppColors.darkTeal),
+          ),
+        ),
+
+      ));
+  }
+
+    void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _signOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (context.mounted) {
+        Navigator.pushReplacementNamed(context, '/userLogin');
+      }
+    } catch (e) {
+      _showErrorDialog('Error signing out:', "An unknown error occurred while signing out. Please try again.");
+    }
+  }
+
 }
 
 class CaseItem {
