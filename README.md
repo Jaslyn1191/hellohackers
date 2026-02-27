@@ -115,7 +115,9 @@ Used to develop and test the mobile application interface.
 
 ## 4. Implementation Details & Innovation
 ### System Architecture 
+
 ### Workflow
+![System Flow](assets/systemFlow.png)
 
 ## 5. Challenges Faced
 During development, our team encountered several technical challenges while building MediAI:  
