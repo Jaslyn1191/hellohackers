@@ -33,41 +33,42 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
           image: DecorationImage(
             image: AssetImage('assets/images/chat_background.png'),
             fit: BoxFit.cover,
-            ),
           ),
+        ),
+        child: SafeArea( // 🔥 prevents overflow on top
           child: Column(
             children: [
+
+              // ================= HEADER =================
               Container(
                 height: 80,
+                width: double.infinity,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/images/background_2.png'),
                     fit: BoxFit.cover,
                   ),
                 ),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
 
-                  const SizedBox(width: 10),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 30,
-                      top: 10,
-                    ),
-                    child: Image.asset(
+                    // Logo
+                    Image.asset(
                       'assets/images/mediai_logo_noname.png',
                       width: 60,
                       height: 60,
-                      fit: BoxFit.contain,
                     ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 70, top: 20),
+
+                    const SizedBox(width: 10),
+
+                    // App Name
+                    const Expanded(
+                      child: Center(
                         child: Text(
                           'MediAI',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 35,
                             fontFamily: 'nextsunday',
                             color: AppColors.darkTeal,
@@ -75,88 +76,96 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                         ),
                       ),
                     ),
-                  ),
-                  // Profile icon - UPDATED to navigate to full profile
-                  GestureDetector(
-                    onTap: () => _openAdminProf(),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 10, top: 10),
-                      child: Image.asset(
-                        'assets/images/user_prof.png',
+
+                    // Profile Icon
+                    GestureDetector(
+                      onTap: _openAdminProf,
+                      child: Container(
                         width: 40,
                         height: 40,
-                        fit: BoxFit.cover,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/user_prof.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-              const Spacer(),
+
+              // ================= LIST SECTION =================
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: casesToDisplay.length,
+                  itemBuilder: (context, index) {
+                    final caseItem = casesToDisplay[index];
+                    return _buildCaseCard(caseItem);
+                  },
+                ),
+              ),
+
+              // ================= BOTTOM BUTTONS =================
+              Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+
+                    SizedBox(
+                      width: 170,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () => setState(() => _showPending = true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              _showPending ? const Color(0xFF00796B) : Colors.grey[400],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Pending Cases',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 20),
+
+                    SizedBox(
+                      width: 170,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () => setState(() => _showPending = false),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              !_showPending ? const Color(0xFF00796B) : Colors.grey[400],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Resolved Cases',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-
-          // RecyclerView (ListView) for cases
-          Positioned(
-            top: 60,
-            left: 0,
-            right: 0,
-            bottom: 60,
-            child: ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: casesToDisplay.length,
-              itemBuilder: (context, index) {
-                final caseItem = casesToDisplay[index];
-                return _buildCaseCard(caseItem);
-              },
-            ),
-          ),
-
-          // Buttons at bottom
-          Positioned(
-            bottom: 10,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Pending Cases button
-                SizedBox(
-                  width: 180,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () => setState(() => _showPending = true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _showPending ? const Color(0xFF00796B) : Colors.grey[400],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text(
-                      'Pending Cases',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                // Resolved Cases button
-                SizedBox(
-                  width: 180,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () => setState(() => _showPending = false),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: !_showPending ? const Color(0xFF00796B) : Colors.grey[400],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text(
-                      'Resolved Cases',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -201,6 +210,7 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
       ),
     );
   }
+
 
   void _openAdminProf() {
     showModalBottomSheet(

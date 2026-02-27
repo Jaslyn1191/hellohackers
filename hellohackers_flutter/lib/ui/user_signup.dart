@@ -15,6 +15,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final dobController = TextEditingController();
+  final nameController = TextEditingController();
   bool _obscurePassword = true;
 
   int? _age;
@@ -36,7 +37,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
       context: context,
       initialDate: DateTime(2000),
       firstDate: DateTime(1920),
-      lastDate: DateTime.now(),
+      lastDate: DateTime(2014),
     );
     if (picked != null) {
       setState(() {
@@ -187,7 +188,48 @@ class _UserSignupPageState extends State<UserSignupPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+
+            const SizedBox(height: 20),
+
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 80,
+                    height: 40,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        'Name:',
+                        style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      color: AppColors.white,
+                      child: TextField(
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        style: const TextStyle(fontSize: 18),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Enter your name',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 5),
 
             Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),

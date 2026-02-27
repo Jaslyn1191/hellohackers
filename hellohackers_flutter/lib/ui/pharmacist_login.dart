@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'phar_dashboard.dart';
+import 'pharmacist_dashboard.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
 
 class PharmacistLoginPage extends StatefulWidget {
