@@ -1,14 +1,29 @@
-We are Team HelloHackers, a group of passionate developers dedicated to building innovative and user-centered healthcare solutions.
 
-Our goal with MediAI is to improve accessibility to OTC medications while ensuring safety, efficiency, and professional oversight through AI-assisted technology. 
+## MediAI
+We are Team HelloHackers, a group of passionate developers dedicated to building innovative and user-centered healthcare solutions. Our goal with MediAI is to improve accessibility to over-the-counter (OTC) medications while ensuring safety, efficiency, and professional oversight through AI-assisted technology. 
 
+### Team Introduction
+**1. Jaslyn Chan**  
+- Group Leader and Backend Developer
+- Integrates Gemini AI, implements Firebase backend and Cloud Functions
+
+**2. Jennifer Ang**
+- Frontend developer
+- Fluttur UI development and user experience design
+
+**3. Goh Wan Qi**
+- Frontend developer
+- Fluttur UI development and user experience design
+- Handles integration of frontend and backend
+
+**4. Stella Wong**
+- Backend developer
+- Implement notification and call features
+  
 ## Repository Overview
-This repository contains the source code and documentation for MediAI, an AI-powered mobile application that enables users to purchase over-the-counter (OTC) medicines online.
-
-MediAI integrates Artificial Intelligence (AI) to interact with users, analyze their symptoms through conversation, and provide appropriate OTC medication recommendations. The system also supports pharmacist verification to ensure safe and responsible dispensing.
+This repository contains the source code and documentation for MediAI, an AI-powered mobile application that enables users to purchase OTC medicines online safely and efficiently. The system combines AI symptom analysis with pharmacist verification, ensuring that users get reliable recommendations and responsible guidance when selecting medications.
 
 ## Table of contents
-
 - Project Overview
 - Key Features
 - Overview of Technologies Used
@@ -19,9 +34,14 @@ MediAI integrates Artificial Intelligence (AI) to interact with users, analyze t
 
 ## Project Overview
 ### Problem Statement
-The rapid advancement of society has led to an increase in health-related issues, resulting in higher demand and consumption of medicines. In Malaysia, over-the-counter (OTC) drugs are widely accessible and commonly purchased without prescriptions. However, improper self-medication may lead to incorrect drug selection, misuse, or potential health risks. Additionally, pharmacists may face time constraints when attending to multiple customers, which can delay consultation and medication dispensing.
+The rise in health-related issues has increased demand for medicines. In Malaysia, over-the-counter (OTC) drugs are widely available, often purchased without professional guidance. This can result in:  
+- Incorrect drug selection
+- Misuse or overuse of medications
+- Potential health risks
 
-There is a need for a smarter and more efficient system that improves accessibility to OTC medicines while ensuring safe and responsible consumption.
+Pharmacists may also face time constraints attending multiple customers, leading to delays in consultation and dispensing.
+
+There is a need for a smarter, AI-assisted system to improve accessibility while ensuring safe and responsible medication use.
 
 ### Sustainable Development Goals (SDG) Alignment
 MediAI aligns with the following Sustainable Development Goals:
@@ -36,9 +56,12 @@ The integration of Artificial Intelligence (AI), specifically Gemini AI, demonst
 By guiding users toward appropriate medication choices and involving pharmacists in the verification process, MediAI encourages responsible consumption of medicines.
 
 ### Solution Overview
-MediAI is an AI-powered application that enables users to purchase OTC medicines online through interactive conversations. Users describe their symptoms to the AI, which gathers relevant information and suggests suitable OTC medications.
-Before final dispensing, the system notifies a pharmacist to review and verify the appropriateness of the medication. This ensures both efficiency and safety in the medication purchasing process.
-The application integrates Gemini AI to provide intelligent symptom analysis and conversational interaction.
+MediAI is an AI-powered mobile application that:  
+- Interacts with users to understand their symptoms
+- Generates OTC medication recommendations using Gemini AI
+- Sends recommendations to a pharmacist for verification before dispensing
+- Allows users to securely purchase verified medicines online
+This solution combines efficiency, safety, and innovation in healthcare access.
 
 ## Key Features
 **1. AI-Powered Symptom Analysis**  
@@ -97,6 +120,7 @@ Used to develop and test the mobile application interface.
 
 ## Challenges Faced
 During development, our team encountered several technical challenges while building MediAI:  
+
 **1. Integrating Frontend and Backend**  
 Merging Flutter frontend with Firebase backend and Cloud Functions required careful handling of API calls and data flow.
 
