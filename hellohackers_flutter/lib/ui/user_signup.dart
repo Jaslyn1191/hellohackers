@@ -115,7 +115,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 80,
+                    width: 85,
                     height: 40,
                     child: Align(
                       alignment: Alignment.centerLeft,
@@ -204,7 +204,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 80,
+                    width: 85,
                     height: 40,
                     child: Align(
                       alignment: Alignment.centerLeft,
@@ -246,7 +246,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 80,
+                    width: 85,
                     height: 40,
                     child: Align(
                       alignment: Alignment.centerLeft,
@@ -287,7 +287,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: 80,
+                          width: 85,
                           height: 60,
                           child: Align(
                             alignment: Alignment.centerLeft,
