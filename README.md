@@ -1,4 +1,3 @@
-# Hellohackers
 We are Team HelloHackers, a group of passionate developers dedicated to building innovative and user-centered healthcare solutions.
 
 Our goal with MediAI is to improve accessibility to OTC medications while ensuring safety, efficiency, and professional oversight through AI-assisted technology. 
@@ -76,6 +75,9 @@ Firebase is used as the backend infrastructure of the application. It supports:
 **3. Firebase Cloud Functions**  
 Used to handle secure backend logic, API calls to Gemini AI, and pharmacist notification workflows.
 
+**4. Flutter**  
+Used to develop the cross-platform mobile application interface. Flutter enables smooth UI rendering and seamless communication with the backend services.
+
 ### Other Supporting Tools / Libraries
 **1. Node.js**  
 Used for backend development and server-side logic.
@@ -88,9 +90,6 @@ Enables secure cross-origin communication between frontend and backend.
 
 **4. Android Studio**  
 Used to develop and test the mobile application interface.
-
-**5. Flutter**  
-Used to develop the cross-platform mobile application interface. Flutter enables smooth UI rendering and seamless communication with the backend services.
 
 ## Implementation Details & Innovation
 ### System Architecture 
