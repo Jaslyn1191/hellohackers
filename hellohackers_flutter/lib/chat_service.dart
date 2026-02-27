@@ -5,7 +5,7 @@ class ChatService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   /// Create a new case
-  static Future<String> createCase({
+  static Future<void> createCase({
     required String userEmail,
     required String caseId, // Optional, can be generated if not provided
   }) async {
@@ -65,13 +65,17 @@ class ChatService {
   /// ---------------------------
   /// Get messages of a case
   /// ---------------------------
-  static Stream<QuerySnapshot> getCaseMessages(String caseId) {
-    return _db
+  static Stream<QuerySnapshot> getCaseMessages(String caseId) async*{
+    final querySnapshot = await _db
         .collection('cases')
-        .doc(caseId)
-        .collection('messages')
-        .orderBy('timestamp')
-        .snapshots();
+        .where('caseID', isEqualTo: caseId)
+        .limit(1)
+        .get();
+
+      if (querySnapshot.docs.isEmpty) return;
+
+      final caseDoc = querySnapshot.docs.first.reference;
+      yield* caseDoc.collection('messages').orderBy('timestamp').snapshots();
   }
 
   /// ---------------------------

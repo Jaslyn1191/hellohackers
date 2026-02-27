@@ -1,4 +1,6 @@
 import 'dart:isolate';
+import 'dart:async';
+
 import 'package:hellohackers_flutter/core/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:hellohackers_flutter/api_service.dart';
@@ -30,6 +32,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
   List<ChatMessage> messages = [];
   List<String> previousCaseIds = [];
+  StreamSubscription? _chatSubscription;
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +181,8 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
 
                   //send icon
+                  ///////////////////////////////////////////////////////////
+                  ///CHECKED
                   GestureDetector(
                     onTap: () async {
                       if (messageController.text.trim().isEmpty) return;
@@ -192,7 +197,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                           userEmail: widget.userEmail,
                         );
                         curCaseId = newCaseId;
-                        previousCaseIds.add(newCaseId);
+                        // previousCaseIds.add(newCaseId);
                       }
 
                       //add user msg to database under case, and to the current messages list
@@ -225,6 +230,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
                       _scrollToBottom();
                     },
+                    /////////////////////////////////////////////////
 
                     child: Container(
                       width: 45,
@@ -270,7 +276,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
           ),
         ),
 
-        // 🔹 List of case IDs
+        // List of case IDs
         Expanded(
           child: ListView.builder(
             itemCount: previousCaseIds.length,
@@ -293,6 +299,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
   );
 }
 
+  /////CHECKED
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -303,6 +310,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     });
   }
 
+  ///CHECKED
   Widget _buildChatBubble(ChatMessage message) {
     return Container(
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -326,6 +334,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     );
   }
 
+  ///CHECKED
   void _showMenu() {
     // You can add menu items here later
     showModalBottomSheet(
@@ -352,7 +361,6 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
               leading: const Icon(Icons.history, color: AppColors.lightBlue),
               title: const Text('Previous Chats'),
               onTap: () {
-                Navigator.pop(context);
                 _navigateToSidePanel();
               },
             ),
@@ -388,7 +396,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
   //add save chat history
   void _navigateToNewChat() {
-    if (curCaseId != null) {
+    if (curCaseId != null && !previousCaseIds.contains(curCaseId)) {
       previousCaseIds.add(curCaseId!);
     }
 
@@ -403,16 +411,47 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     _scaffoldKey.currentState?.openDrawer();
   }
 
-  //mine, not jas, newly add on
+  /////to check
   void _loadChat(String caseId) async {
+    // Cancel any existing subscription to avoid multiple listeners
+    await _chatSubscription?.cancel();
 
-    List<ChatMessage> fetchedMessages = await ApiService.fetchChatHistory(caseId);
+    _chatSubscription = ChatService.getCaseMessages(caseId).listen((snapshot) {
+      List<ChatMessage> fetchedMessages = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return ChatMessage(
+          text: data['text'] ?? '',
+          isUser: data['isUser'] ?? false,
+        );
+      }).toList();
 
-    setState(() {
-      curCaseId = caseId;
-      messages = fetchedMessages;
+      setState(() {
+        curCaseId = caseId;
+        messages = fetchedMessages;
+      });
+
+      _scrollToBottom();
     });
   }
+  // void _loadChat(String caseId) async {
+
+  //   ChatService.getCaseMessages(caseId).listen((snapshot) {
+  //     List<ChatMessage> fetchedMessages = snapshot.docs.map((doc) {
+  //       final data = doc.data() as Map<String, dynamic>;
+  //       return ChatMessage(
+  //         text: data['text'] ?? '',
+  //         isUser: data['isUser'] ?? false,
+  //       );
+  //     }).toList();
+
+  //     setState(() {
+  //       curCaseId = caseId;
+  //       messages = fetchedMessages;
+  //     });
+
+  //     _scrollToBottom();
+  //   });
+  // }
 
 
   // NEW: Navigate to full profile page
@@ -446,84 +485,14 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     );
   }
 
-  // Keep the existing bottom sheet as an alternative access point
-  void _showProfile() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.5,
-        minChildSize: 0.3,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) => Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // Handle bar
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // User info
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: AppColors.lightBlue,
-                child: Text(
-                  widget.userEmail[0].toUpperCase(),
-                  style: const TextStyle(fontSize: 30, color: AppColors.white),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                widget.userEmail,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 24),
-
-              // Options
-              ListTile(
-                leading: const Icon(Icons.person, color: AppColors.lightBlue),
-                title: const Text('View Full Profile'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _navigateToProfile();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.payment, color: AppColors.lightBlue),
-                title: const Text('Make a Payment'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _navigateToPayment();
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text('Logout'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await FirebaseAuth.instance.signOut();
-                  if (context.mounted) {
-                    Navigator.pushReplacementNamed(context, '/userLogin');
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    _chatSubscription?.cancel();
+    messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
+
+
 }
 
