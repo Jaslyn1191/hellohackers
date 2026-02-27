@@ -3,11 +3,11 @@
 We are Team HelloHackers, a group of passionate developers dedicated to building innovative and user-centered healthcare solutions. Our goal with MediAI is to improve accessibility to over-the-counter (OTC) medications while ensuring safety, efficiency, and professional oversight through AI-assisted technology. 
 
 ### Team Introduction
-**1. Jaslyn Chan**  
+**1. Jaslyn Chan Mun Kuan**  
 - Group Leader and Backend Developer
 - Integrates Gemini AI, implements Firebase backend and Cloud Functions
 
-**2. Jennifer Ang**
+**2. Jennifer Ang Ching Wei**
 - Frontend Developer
 - Fluttur UI development and user experience design
 
@@ -16,7 +16,7 @@ We are Team HelloHackers, a group of passionate developers dedicated to building
 - Fluttur UI development and user experience design
 - Handles integration of frontend and backend
 
-**4. Stella Wong**
+**4. Stella Wong Kai Ning**
 - Backend Developer
 - Implement notification and call features
   
@@ -24,15 +24,15 @@ We are Team HelloHackers, a group of passionate developers dedicated to building
 This repository contains the source code and documentation for MediAI, an AI-powered mobile application that enables users to purchase OTC medicines online safely and efficiently. The system combines AI symptom analysis with pharmacist verification, ensuring that users get reliable recommendations and responsible guidance when selecting medications.
 
 ## Table of contents
-- Project Overview
-- Key Features
-- Overview of Technologies Used
-- Implementation Details & Innovation
-- Challenges Faced
-- Installation & Setup
-- Future Roadmap
+1. Project Overview
+2. Key Features
+3. Overview of Technologies Used
+4. Implementation Details & Innovation
+5. Challenges Faced
+6. Installation & Setup
+7. Future Roadmap
 
-## Project Overview
+## 1. Project Overview
 ### Problem Statement
 The rise in health-related issues has increased demand for medicines. In Malaysia, over-the-counter (OTC) drugs are widely available, often purchased without professional guidance. This can result in:  
 - Incorrect drug selection
@@ -63,7 +63,7 @@ MediAI is an AI-powered mobile application that:
 - Allows users to securely purchase verified medicines online
 This solution combines efficiency, safety, and innovation in healthcare access.
 
-## Key Features
+## 2. Key Features
 **1. AI-Powered Symptom Analysis**  
 Users describe their symptoms through an interactive chat interface powered by Gemini AI.
 
@@ -82,7 +82,7 @@ User-AI conversations are securely stored for pharmacist review and record track
 **6. Online OTC Purchasing**  
 Users can conveniently purchase verified OTC medicines directly within the application.
 
-## Overview of Technologies Used
+## 3. Overview of Technologies Used
 ### Google Technologies 
 **1. Google Gemini (Generative AI Model)**  
 Gemini AI is integrated into MediAI to analyze user-reported symptoms through natural language conversation. It generates intelligent OTC medication recommendations based on contextual understanding.
@@ -114,11 +114,11 @@ Enables secure cross-origin communication between frontend and backend.
 **4. Android Studio**  
 Used to develop and test the mobile application interface.
 
-## Implementation Details & Innovation
+## 4. Implementation Details & Innovation
 ### System Architecture 
 ### Workflow
 
-## Challenges Faced
+## 5. Challenges Faced
 During development, our team encountered several technical challenges while building MediAI:  
 
 **1. Integrating Frontend and Backend**  
@@ -133,7 +133,7 @@ Making the chat interface smooth and intuitive across different devices and scre
 **4. AI Response Accuracy**  
 Initially, the AI often provided irrelevant or mismatched responses, which required debugging and fine-tuning how input is sent to the API.
 
-## Installation & Setup
+## 6. Installation & Setup
 Before running the installation steps, make sure that Node.js v18+ and npm are installed in your development environment. 
 
 **Step 1: Clone the repository**
@@ -151,7 +151,7 @@ Before running the installation steps, make sure that Node.js v18+ and npm are i
 npm install
 ```
 
-## Future Roadmap
+## 7. Future Roadmap
 **Phase 1: Enhanced User Interaction**  
 - Add voice-based user input
 - Integrate AI transcription for speech-to-text conversion
