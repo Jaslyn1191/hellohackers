@@ -326,7 +326,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
 
       //create the user in database
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
-        'fullName': "",
+        'name': "",
         'age': _age,
         'dob': dobController.text,
         'address': "",

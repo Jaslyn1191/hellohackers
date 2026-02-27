@@ -5,7 +5,7 @@ class CaseService {
 
   static Future<String> generateCaseId() async {
     return await _db.runTransaction((transaction) async {
-      final docRef = _db.collection('case_meta').doc('counter');
+      final docRef = _db.collection('case_counter').doc('counter');
       final snapshot = await transaction.get(docRef);
 
       int currentValue = 0;

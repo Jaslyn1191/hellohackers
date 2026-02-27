@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../chat_message.dart';
+
 
 class ApiService {
   static const String baseUrl = 'https://api-cqohnaeeea-uc.a.run.app/chat';
 
   /// Send a message to your AI backend
-  // static Future<String> sendMessage(String message) async {
     // Generate a unique session key for each user
   static Future<String> sendMessage(
         String message,
@@ -37,6 +38,7 @@ class ApiService {
             return "Error sending message";
           }
         }
+  static Future<List<ChatMessage>> fetchChatHistory(String sessionKey) async {
 
   }
 
