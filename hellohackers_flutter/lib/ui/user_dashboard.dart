@@ -7,6 +7,7 @@ import 'package:hellohackers_flutter/ui/payment_page.dart'; // Add your payment 
 import 'package:firebase_auth/firebase_auth.dart'; // Add for authimport '../case_id_gen.dart';
 import '../case_id_gen.dart';
 import '../chat_message.dart';
+import "../chat_service.dart";
 
 class UserDashboardPage extends StatefulWidget {
   final String userEmail;
@@ -174,33 +175,57 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                     ),
                   ),
                   const SizedBox(width: 8),
+
+
+                  //send icon
                   GestureDetector(
                     onTap: () async {
-
-                      if (curCaseId == null) {
-                          curCaseId = await CaseService.generateCaseId();
-                          // await ChatService.createCase(widget.userEmail, curCaseId!);
-                        }
+                      if (messageController.text.trim().isEmpty) return;
 
                       String userMessage = messageController.text;
+
+                      if (curCaseId == null) {
+                        // First time sending a message, create a new case
+                        String newCaseId = await CaseService.generateCaseId();
+                        await ChatService.createCase(
+                          caseId: newCaseId,
+                          userEmail: widget.userEmail,
+                        );
+                        curCaseId = newCaseId;
+                        previousCaseIds.add(newCaseId);
+                      }
+
+                      //add user msg to database under case, and to the current messages list
+                      await ChatService.addMessage(
+                        caseId: curCaseId!,
+                        text: userMessage,
+                        isUser: true,
+                      );
+
                       setState(() {
                         messages.add(ChatMessage(
-                          text: messageController.text,
+                          text: userMessage,
                           isUser: true,
                         ));
                         _isLoading = true;
                       });
+
                       messageController.clear();
                       _scrollToBottom();
 
+                      //add ai reply to database and to the current messages list
                       String aiReply = await ApiService.sendMessage(userMessage, curCaseId!);
+
+                      await ChatService.addMessage(caseId: curCaseId!, text: aiReply, isUser: false,);
 
                       setState(() {
                         messages.add(ChatMessage(text: aiReply, isUser: false));
                         _isLoading = false;
                       });
+
                       _scrollToBottom();
                     },
+
                     child: Container(
                       width: 45,
                       height: 45,
@@ -378,6 +403,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     _scaffoldKey.currentState?.openDrawer();
   }
 
+  //mine, not jas, newly add on
   void _loadChat(String caseId) async {
 
     List<ChatMessage> fetchedMessages = await ApiService.fetchChatHistory(caseId);
@@ -454,7 +480,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
                 backgroundColor: AppColors.lightBlue,
                 child: Text(
                   widget.userEmail[0].toUpperCase(),
-                  style: const TextStyle(fontSize: 30, color: Colors.white),
+                  style: const TextStyle(fontSize: 30, color: AppColors.white),
                 ),
               ),
               const SizedBox(height: 12),

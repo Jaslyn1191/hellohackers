@@ -7,7 +7,7 @@ class ApiService {
   static const String baseUrl = 'https://api-cqohnaeeea-uc.a.run.app/chat';
 
   /// Send a message to your AI backend
-    // Generate a unique session key for each user
+  /// Generate a unique session key for each user
   static Future<String> sendMessage(
         String message,
         String sessionKey,
@@ -38,9 +38,6 @@ class ApiService {
             return "Error sending message";
           }
         }
-  static Future<List<ChatMessage>> fetchChatHistory(String sessionKey) async {
-
-  }
 
 
 
