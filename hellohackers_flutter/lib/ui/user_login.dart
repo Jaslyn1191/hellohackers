@@ -212,10 +212,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
         width: 120,
         height: 40,
         child: ElevatedButton(
-        onPressed: () => Navigator.pushNamed(
-          context,
-          '/signUp',
-        ),
+        onPressed: _handleSignup,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.teal700,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -322,6 +319,10 @@ class _UserLoginPageState extends State<UserLoginPage> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _handleSignup() {
+    Navigator.pushNamed(context, '/signUp');
   }
 
   void _showErrorDialog(String title, String message) {

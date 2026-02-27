@@ -416,6 +416,40 @@ class _UserSignupPageState extends State<UserSignupPage> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _showNotice();
+    });
+  }
+
+  void _showNotice() {
+    showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Notice"),
+      content: const Text(
+        "1. Please ensure the crendentials you entered is accurate.\n"
+        "2. Please enter a valid email address.\n"
+        "3. Password must be at least 6 characters.\n"
+        ,
+      ),
+      actions: [
+
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text("OK", style: TextStyle(fontSize: 20),
+        ),
+
+      ],
+    ),
+  );
+  }
+
+
   void _showErrorDialog(String title, String message) {
 
     if (!mounted) return;
