@@ -85,27 +85,14 @@ class ChatService {
     required String caseId,
     required String status,
   }) async {
-    await _db.collection('cases').doc(caseId).update({
+    final query = await _db.collection('cases')
+    .where(caseId, isEqualTo: caseId)
+    .limit(1)
+    .get();
+
+    if (query.docs.isEmpty) return;
+
+    await query.docs.first.reference.update({
       'status': status,
     });
-  }
-
-  /// ---------------------------
-  /// Delete case (Optional)
-  /// ---------------------------
-  // static Future<void> deleteCase(String caseId) async {
-  //   // Delete messages first (optional cleanup)
-  //   final messages = await _db
-  //       .collection('cases')
-  //       .doc(caseId)
-  //       .collection('messages')
-  //       .get();
-
-  //   for (var doc in messages.docs) {
-  //     await doc.reference.delete();
-  //   }
-
-  //   // Delete case document
-  //   await _db.collection('cases').doc(caseId).delete();
-  // }
-}
+  }}

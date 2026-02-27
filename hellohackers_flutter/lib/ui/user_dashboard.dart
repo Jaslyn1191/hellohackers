@@ -149,21 +149,12 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
                   Expanded(
                     child: Container(
-                      // height: 45,
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: TextField(
-                      //   controller: messageController,
-                      //   style: const TextStyle(fontSize: 16),
-                      //   decoration: InputDecoration(
-                      //     hintText: 'Send a message',
-                      //     hintStyle: TextStyle(color: AppColors.grey),
-                      //     border: InputBorder.none,
-                      //     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      //   ),
-                      // ),
+
                       controller: messageController,
                       style: const TextStyle(fontSize: 16),
 

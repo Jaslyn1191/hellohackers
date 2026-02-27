@@ -1,3 +1,5 @@
+// import 'dart:ui_web';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
@@ -16,6 +18,8 @@ class _UserSignupPageState extends State<UserSignupPage> {
   final passwordController = TextEditingController();
   final dobController = TextEditingController();
   final nameController = TextEditingController();
+  final icController = TextEditingController();
+
   bool _obscurePassword = true;
 
   int? _age;
@@ -28,6 +32,8 @@ class _UserSignupPageState extends State<UserSignupPage> {
     emailController.dispose();
     passwordController.dispose();
     dobController.dispose();
+    nameController.dispose();
+    icController.dispose();
     super.dispose();
   }
 
@@ -151,7 +157,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 80,
+                    width: 85,
                     height: 40,
                     child: Align(
                       alignment: Alignment.centerLeft,
@@ -216,8 +222,8 @@ class _UserSignupPageState extends State<UserSignupPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       color: AppColors.white,
                       child: TextField(
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: nameController,
+                        keyboardType: TextInputType.text,
                         style: const TextStyle(fontSize: 18),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
@@ -229,6 +235,49 @@ class _UserSignupPageState extends State<UserSignupPage> {
                 ],
               ),
             ),
+
+            const SizedBox(height: 20),
+
+            // IC
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 80,
+                    height: 40,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        'IC:',
+                        style: TextStyle(fontSize: 20, fontFamily: 'winterdraw'),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      color: AppColors.white,
+                      child: TextField(
+                        controller: icController,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(fontSize: 18),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Enter your IC number',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 5),
 
             Padding(
@@ -293,17 +342,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
                   height: 40,
                   child: ElevatedButton(
 
-                    //////////////////////
-                    // onPressed: () async {
-                    //   final userEmail = emailController.text.trim();
-                    //   final userPassword = passwordController.text.trim();
-                    //   setState(() {
-                    //     _emailError = null;
-                    //     _passwordError = null;
-                    //   });
-                    // },
                     onPressed: _handleSignup,
-                    //////////////////////
 
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.teal700,
@@ -349,8 +388,10 @@ class _UserSignupPageState extends State<UserSignupPage> {
     final userEmail = emailController.text.trim();
     final userPassword = passwordController.text.trim();
     final userDob = dobController.text.trim();
+    final userName = nameController.text.trim();
+    final userIC = icController.text.trim();
 
-    if (userEmail.isEmpty || userPassword.isEmpty || userDob.isEmpty) {
+    if (userEmail.isEmpty || userPassword.isEmpty || userDob.isEmpty || userName.isEmpty || userIC.isEmpty) {
       _showErrorDialog('Error', 'Please fill in all the fields.');
       return;
     }
@@ -368,11 +409,12 @@ class _UserSignupPageState extends State<UserSignupPage> {
 
       //create the user in database
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
-        'name': "",
+        'name': nameController.text.trim(),
         'age': _age,
         'dob': dobController.text,
         'address': "",
         'email': userEmail,
+        "ic": icController.text.trim(),
       });
 
       if (!context.mounted) return;
@@ -430,7 +472,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
     builder: (context) => AlertDialog(
       title: const Text("Notice"),
       content: const Text(
-        "1. Please ensure the crendentials you entered is accurate.\n"
+        "1. Please ensure your crendentials are correct.\n"
         "2. Please enter a valid email address.\n"
         "3. Password must be at least 6 characters.\n"
         ,
@@ -443,7 +485,7 @@ class _UserSignupPageState extends State<UserSignupPage> {
           },
           child: Text("OK", style: TextStyle(fontSize: 20),
         ),
-
+        ),
       ],
     ),
   );
