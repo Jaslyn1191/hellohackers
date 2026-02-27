@@ -97,6 +97,18 @@ Used to develop the cross-platform mobile application interface. Flutter enables
 ### Workflow
 
 ## Challenges Faced
+During development, our team encountered several technical challenges while building MediAI:  
+**1. Integrating Frontend and Backend**  
+Merging Flutter frontend with Firebase backend and Cloud Functions required careful handling of API calls and data flow.
+
+**2. AI API Limitations on Android Studio**  
+Initially, calls to Gemini AI did not work directly through Android Studio, which required switching to Flutter for proper integration.
+
+**3. UI Responsiveness**  
+Making the chat interface smooth and intuitive across different devices and screen sizes.
+
+**4. AI Response Accuracy**  
+Initially, the AI often provided irrelevant or mismatched responses, which required debugging and fine-tuning how input is sent to the API.
 
 ## Installation & Setup
 Before running the installation steps, make sure that Node.js v18+ and npm are installed in your development environment. 
