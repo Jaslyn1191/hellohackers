@@ -8,16 +8,16 @@ We are Team HelloHackers, a group of passionate developers dedicated to building
 - Integrates Gemini AI, implements Firebase backend and Cloud Functions
 
 **2. Jennifer Ang**
-- Frontend developer
+- Frontend Developer
 - Fluttur UI development and user experience design
 
 **3. Goh Wan Qi**
-- Frontend developer
+- Frontend Developer
 - Fluttur UI development and user experience design
 - Handles integration of frontend and backend
 
 **4. Stella Wong**
-- Backend developer
+- Backend Developer
 - Implement notification and call features
   
 ## Repository Overview
