@@ -3,7 +3,6 @@ import { getPendingCases } from '../hellohackers_flutter/getPendingCases.js';
 import { sendToPharmacist } from '../hellohackers_flutter/sendToPharmacist.js';
 import { reviewCases } from '../hellohackers_flutter/reviewCases.js';
 import { pharmacistCall } from '../hellohackers_flutter/pharmacistCall.js';
-import { pharmacistChat } from '../hellohackers_flutter/pharmacistChat.js';
 
 const functions = require('firebase-functions'); // Firebase v1/v2 API
 const express = require('express');
@@ -231,17 +230,6 @@ app.post('/pharmacist-call', async (req, res) => {
   try {
     const { caseId } = req.body;
     const result = await pharmacistCall(caseId);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Pharmacist chat with user
-app.post('/pharmacist-chat', async (req, res) => {
-  try {
-    const { caseId, message } = req.body;
-    const result = await pharmacistChat(caseId, message);
     res.json(result);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

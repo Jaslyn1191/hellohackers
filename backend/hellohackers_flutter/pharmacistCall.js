@@ -1,38 +1,60 @@
+
 import db from "./firebase-admin.js";
-import admin from "firebase-admin";
+import { google } from "googleapis";
 
+const calendar = google.calendar({
+  version: "v3",
+  auth: new google.auth.GoogleAuth({
+    scopes: ["https://www.googleapis.com/auth/calendar"], 
+  }),
+});
+
+/**
+ * Start a Google Meet for the specific caseId
+ * Stores the Meet link in Firestore and updates status
+ */
 export async function pharmacistCall(caseId) {
-    try {
-    
-        // update status to pharmacist call
-        await db.collection("cases").doc(caseId).update({
-            status: "Further Assessment Required",
-            callEnabled: true,
-            callStatus: "ringing",
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            conversation: admin.firestore.FieldValue.arrayUnion({
-                role: "system",
-                content: "Pharmacist has started a call. Please answer.",
-                timestamp: admin.firestore.FieldValue.serverTimestamp()
-            })
-        });
+  try {
+    // Create Google Calendar event with Meet link
+    const activity = await calendar.events.insert({
+      calendarId: "primary",       
+      conferenceDataVersion: 1,     
+      requestBody: {
+        summary: "Pharmacist Consultation",
+        description: `Consultation for case ${caseId}`,
+        start: { dateTime: new Date().toISOString() },               
+        end: { dateTime: new Date(Date.now() + 30 * 60 * 1000).toISOString() }, // 30 mins meeting
+        conferenceData: {
+          createRequest: {
+            requestId: `${caseId}-${Date.now()}`,  // unique ID for this meet
+          },
+        },
+      },
+    });
 
-        // record the call timing in firebase
-        await db.collection("calls").doc(caseId).set({
-            caseId,
-            status: "ringing",
-            startedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
+    // extract the Google Meet link
+    const meetLink =
+      activity?.data?.conferenceData?.entryPoints?.find(
+        (ep) => ep.entryPointType === "video"
+      )?.uri || null;
 
-        return {
-            success: true,
-            message: "Pharmacist call initiated",
-            caseId,
-            callStatus: "ringing"
-            };
+    await db.collection("cases").doc(caseId).update({
+      status: "Further Assessment Required", 
+      callEnabled: true,                  
+      meetLink: meetLink,            
+      updatedAt: new Date(),
+    });
 
-        } catch (error) {
-            console.error("Failed to start pharmacist call", error);
-            return { success: false, error: error.message };
-        }
+    return {
+      success: true,
+      meetLink,
+      message: "Google Meet started successfully",
+    };
+  } catch (error) {
+    console.error("Failed to start Google Meet", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 }
