@@ -135,21 +135,51 @@ Making the chat interface smooth and intuitive across different devices and scre
 Initially, the AI often provided irrelevant or mismatched responses, which required debugging and fine-tuning how input is sent to the API.
 
 ## 6. Installation & Setup
-Before running the installation steps, make sure that Node.js v18+ and npm are installed in your development environment. 
+This guide walks you through setting up and running the MediAI app locally.  
 
-**Step 1: Clone the repository**
-
+**Step 1: Install Prerequisites**
 1. **Download VS Code**: With the Visual Studio Code IDE, you can simply copy the git repository URL, clone it to your local device, and run the application locally.
-2. **Install Node.js**: Navigate to https://nodejs.org/en/download and install the latest version of Node.js
-3. **Clone the repository**: 
-    - Click on the "Code" button
-    - 
-
-**Step 2: Running the application**
-
-1. **Install dependecies**: In VS Code, open the terminal, and insert the command below, then press Enter:
+2. **Install Flutter SDK** Follow the [official Flutter installation guide](https://docs.flutter.dev/install/custom). We recommend using the **Install with VS Code** method.
+After installation, verify setup:
 ```bash
+flutter doctor
+```
+3. **Install Flutter and Dart extensions**: [Install from the Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter) or by [searching within VS Code](https://code.visualstudio.com/docs/editor/extension-gallery#_search-for-an-extension). The Dart extension will be installed automatically, if not already installed.
+Please see the [Flutter documentation for using VS Code](https://docs.flutter.dev/install/with-vs-code).
+
+**Step 2: Clone Repository**:
+1. **Clone the Repository**: 
+    - Click on the "Code" button
+    - Select the Visual Studio Code, HTTPS option under the "Open with" tab
+    - Select the Folder you wish to store the repository under.
+
+**Step 2: Installation**
+1. **Install Node.js**: Navigate to [Node installation guide](https://nodejs.org/en/download) and install the latest version of Node.js
+2. **Install FlutterFire CLI**: To install, run the following command:
+```bash
+dart pub global activate flutterfire_cli
+```
+3. FlutterFire CLI requires the Firebase CLI (`firebase-tools`) to be installed on your local machine, [follow these instructions](https://firebase.google.com/docs/cli) for installation.
+If you're running on a windows machine, we highly recommend you install via npm (i.e. `npm install -g firebase-tools`). The standalone
+`firebase-tools` version can cause problems which you can read about [here](https://github.com/invertase/flutterfire_cli/issues/55#issuecomment-1316201478).
+4. **Install Dependencies**: In VS Code, open the terminal, and insert the command below, then press Enter:
+```bash
+cd functions
 npm install
+```
+
+**Step 3: Running the application**
+1. **Fetch Dependencies**: Run to update `pubspec.yaml` and download the package
+```bash
+flutter pub get
+```
+2. **Initialise Firebase**: If not already done, configure your project using the FlutterFire CLI:
+```bash
+flutterfire configure
+```
+3. **Run the Application**: Start emulator or connect device, then run
+```bash
+flutter run
 ```
 
 ## 7. Future Roadmap
