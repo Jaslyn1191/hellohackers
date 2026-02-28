@@ -6,10 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:hellohackers_flutter/api_service.dart';
 import 'package:hellohackers_flutter/ui/profile_page.dart'; // Add your profile page
 import 'package:hellohackers_flutter/ui/payment_page.dart'; // Add your payment page
-import 'package:firebase_auth/firebase_auth.dart'; // Add for authimport '../case_id_gen.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Add for auth
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../case_id_gen.dart';
 import '../chat_message.dart';
 import "../chat_service.dart";
+import '../order_service.dart';
+import 'order_history.dart';
 
 class UserDashboardPage extends StatefulWidget {
   final String userEmail;
@@ -29,10 +33,13 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
   String responseText = "";
   bool _isLoading = false;
+  bool _resolvedMessageSent = false;
+  bool _furtherMessageSent = false;
 
   List<ChatMessage> messages = [];
   List<String> previousCaseIds = [];
   StreamSubscription? _chatSubscription;
+  StreamSubscription? _caseStatusSubscription;
 
   @override
   Widget build(BuildContext context) {
@@ -277,25 +284,57 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
         // List of case IDs
         Expanded(
-          child: ListView.builder(
-            itemCount: previousCaseIds.length,
-            itemBuilder: (context, index) {
-              final caseId = previousCaseIds[index];
+          child: Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection("cases")
+                  .where("userEmail", isEqualTo: widget.userEmail)
+                  // .orderBy("createdAt", descending: true)
+                  .snapshots(),
 
-              return ListTile(
-                leading: const Icon(Icons.chat_bubble_outline),
-                title: Text("Case $caseId"),
-                onTap: () {
-                  Navigator.pop(context); // close drawer
-                  _loadChat(caseId);
-                },
-              );
-            },
+              builder: (context, snapshot) {
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text("No Previous Chats"),
+                  );
+                }
+
+                final docs = snapshot.data!.docs;
+
+                return ListView.builder(
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final caseId = data["caseID"] ?? "Unknown ID";
+
+                    // final caseId = docs[index].id;
+
+                    return ListTile(
+                      leading: const Icon(Icons.chat_bubble_outline),
+                      title: Text("Case $caseId"),
+                      subtitle: Text("Status: ${data["status"] ?? ""}"),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _loadChat(caseId);
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ),
       ],
     ),
   );
+
+
 }
 
   /////CHECKED
@@ -311,6 +350,11 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
   ///CHECKED
   Widget _buildChatBubble(ChatMessage message) {
+    if (!message.isUser &&
+      message.text.contains("Choose your order method")) {
+        return _buildOrderButtons();
+      }
+
     return Container(
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -330,6 +374,206 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildOrderButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+
+        ElevatedButton(
+          onPressed: () {
+            _selectPickup();
+          },
+          child: const Text("Self Pickup", style: TextStyle(fontSize: 14, color: AppColors.white),),
+        ),
+
+        const SizedBox(width: 10),
+
+        ElevatedButton(
+          onPressed: () {
+            _selectDelivery();
+          },
+          child: const Text("Delivery", style: TextStyle(fontSize: 14, color: AppColors.white)),
+        ),
+      ],
+    );
+  }
+
+  void _showAlreadyChosenDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Order Method"),
+        content: const Text(
+            "You have already chosen an order method. You cannot change it."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _selectPickup() async {
+    if (curCaseId == null) return;
+
+    // ---------------------------------------
+    // 1. Get order document
+    // ---------------------------------------
+    final ordersSnapshot = await FirebaseFirestore.instance
+        .collection("orders")
+        .where("caseId", isEqualTo: curCaseId)
+        .limit(1)
+        .get();
+
+    if (ordersSnapshot.docs.isNotEmpty) {
+      final data = ordersSnapshot.docs.first.data();
+      final existingMethod = data["orderMethod"] ?? "";
+
+      if (existingMethod.toString().isNotEmpty) {
+        _showAlreadyChosenDialog();
+        return;
+      }
+    }
+
+    // ---------------------------------------
+    // 2. Update case status -> resolved
+    // ---------------------------------------
+    // final caseSnapshot = await FirebaseFirestore.instance
+    //     .collection("cases")
+    //     .where("caseID", isEqualTo: curCaseId)
+    //     .limit(1)
+    //     .get();
+
+    // if (caseSnapshot.docs.isNotEmpty) {
+    //   await caseSnapshot.docs.first.reference.update({
+    //     "status": "resolved",
+    //   });
+    // }
+
+    // ---------------------------------------
+    // 3. Update order method
+    // ---------------------------------------
+    for (var doc in ordersSnapshot.docs) {
+      await doc.reference.update({
+        "orderMethod": "self pickup",
+      });
+    }
+
+    // ---------------------------------------
+    // 4. Add chat message
+    // ---------------------------------------
+    await ChatService.addMessage(
+      caseId: curCaseId!,
+      text: "User selected Self Pickup.",
+      isUser: true,
+    );
+
+    await ChatService.addMessage(
+      caseId: curCaseId!,
+      text: "Please proceed to the order history page to view your order details and pay for your order.",
+      isUser: false,
+    );
+  }
+
+  void _selectDelivery() async {
+    if (curCaseId == null) return;
+
+    // ---------------------------------------
+    // 1. Check user address
+    // ---------------------------------------
+    final userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .where("email", isEqualTo: widget.userEmail)
+        .limit(1)
+        .get();
+
+    String address = "";
+
+    if (userDoc.docs.isNotEmpty) {
+      final data = userDoc.docs.first.data();
+      address = data["address"] ?? "";
+    }
+
+    if (address.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Note"),
+          content: const Text("Please add your delivery address in your profile."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+);
+
+return;
+    }
+
+    // ---------------------------------------
+    // 2. Check if order already chosen
+    // ---------------------------------------
+    final ordersSnapshot = await FirebaseFirestore.instance
+        .collection("orders")
+        .where("caseId", isEqualTo: curCaseId)
+        .limit(1)
+        .get();
+
+    if (ordersSnapshot.docs.isNotEmpty) {
+      final data = ordersSnapshot.docs.first.data();
+      final existingMethod = data["orderMethod"] ?? "";
+
+      if (existingMethod.toString().isNotEmpty) {
+        _showAlreadyChosenDialog();
+        return;
+      }
+    }
+
+    // ---------------------------------------
+    // 3. Update case status
+    // ---------------------------------------
+    // final caseSnapshot = await FirebaseFirestore.instance
+    //     .collection("cases")
+    //     .where("caseID", isEqualTo: curCaseId)
+    //     .limit(1)
+    //     .get();
+
+    // if (caseSnapshot.docs.isNotEmpty) {
+    //   await caseSnapshot.docs.first.reference.update({
+    //     "status": "resolved",
+    //   });
+    // }
+
+    // ---------------------------------------
+    // 4. Update order
+    // ---------------------------------------
+    for (var doc in ordersSnapshot.docs) {
+      await doc.reference.update({
+        "orderMethod": "delivery",
+      });
+    }
+
+    // ---------------------------------------
+    // 5. Add chat message
+    // ---------------------------------------
+    await ChatService.addMessage(
+      caseId: curCaseId!,
+      text: "✔ User selected Delivery.\nAddress: $address",
+      isUser: true,
+    );
+        await ChatService.addMessage(
+      caseId: curCaseId!,
+      text: "Please proceed to the order history page to view your order details and pay for your order.",
+      isUser: false,
     );
   }
 
@@ -357,28 +601,34 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.history, color: AppColors.lightBlue),
+              leading: const Icon(Icons.chat_bubble_outline, color: AppColors.lightBlue),
               title: const Text('Previous Chats'),
               onTap: () {
                 Navigator.pop(context);
                 _navigateToSidePanel();
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.payment, color: AppColors.lightBlue),
-              title: const Text('Make a Payment'),
-              onTap: () {
-                Navigator.pop(context);
-                _navigateToPayment();
-              },
-            ),
+            // ListTile(
+            //   leading: const Icon(Icons.payment, color: AppColors.lightBlue),
+            //   title: const Text('Make a Payment'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     _navigateToPayment();
+            //   },
+            // ),
             ListTile(
               leading: const Icon(Icons.history, color: AppColors.lightBlue),
               title: const Text('Order History'),
-              onTap: () {
-                Navigator.pop(context);
-                _showComingSoon('Order History');
+              onTap: () => {
+                Navigator.pop(context),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderHistoryPage(userEmail: widget.userEmail),
+                  ),
+                ),
               },
+
             ),
             ListTile(
               leading: const Icon(Icons.help, color: AppColors.lightBlue),
@@ -432,6 +682,60 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
       _scrollToBottom();
     });
+
+    // Listen to case status changes
+    _caseStatusSubscription = FirebaseFirestore.instance
+        .collection("cases")
+        .where("caseID", isEqualTo: caseId)
+        .limit(1)
+        .snapshots()
+        .listen((snapshot) async {
+      if (snapshot.docs.isEmpty) return;
+
+      final data = snapshot.docs.first.data();
+      final status = data["status"];
+
+      /// ---------------- RESOLVED ----------------
+      if (status == "resolved" && !_resolvedMessageSent) {
+        _resolvedMessageSent = true;
+
+        final medicine = data["prescribedMedicine"] ?? "";
+        final dosage = data["dosage"] ?? "";
+        final price = data["price"] ?? "";
+
+        String autoMessage =
+        """
+        Prescription Completed
+
+        Medicine: $medicine
+        Dosage: $dosage
+        Price: $price
+
+        Choose your order method:
+        """;
+
+        await ChatService.addMessage(
+          caseId: caseId,
+          text: autoMessage,
+          isUser: false,
+        );
+
+        await OrderService.createOrder(caseId, data);
+
+  }
+
+        /// ---------------- FURTHER ASSESSMENT ----------------
+        if (status == "further assessment"  && !_furtherMessageSent) {
+          _furtherMessageSent = true;
+
+          await ChatService.addMessage(
+            caseId: caseId,
+            text:
+                "The pharmacist will contact you soon for further assessment.",
+            isUser: false,
+          );
+        }
+      });
   }
 
   // NEW: Navigate to full profile page
@@ -444,15 +748,15 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
     );
   }
 
-  // NEW: Navigate to payment page
-  void _navigateToPayment() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const PaymentPage(),
-      ),
-    );
-  }
+  // // NEW: Navigate to payment page
+  // void _navigateToPayment() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => const PaymentPage(),
+  //     ),
+  //   );
+  // }
 
   // Helper for showing coming soon features
   void _showComingSoon(String feature) {
@@ -468,6 +772,7 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
   @override
   void dispose() {
     _chatSubscription?.cancel();
+    _caseStatusSubscription?.cancel();
     messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -475,4 +780,3 @@ class _UserDashboardPageState extends State<UserDashboardPage> {
 
 
 }
-

@@ -26,6 +26,7 @@ class _CaseDetailedViewState extends State<CaseDetailedView> {
 
   final TextEditingController medicineController = TextEditingController();
   final TextEditingController dosageController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
 
 
   // Stream<QuerySnapshot> getMessages() {
@@ -35,6 +36,7 @@ class _CaseDetailedViewState extends State<CaseDetailedView> {
   //     .limit(1)
   //     .snapshots();
   // }
+
 
   Future<String?> _getCaseDocId() async {
     final query = await _db
@@ -58,9 +60,14 @@ class _CaseDetailedViewState extends State<CaseDetailedView> {
     }
 
     Future<void> _approveCase() async {
-      if (medicineController.text.isEmpty || dosageController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please enter medicine and dosage")),
+      if (medicineController.text.isEmpty || dosageController.text.isEmpty || priceController.text.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (context) => const AlertDialog(
+            title: Text("Note"),
+            content: Text("Please fill in all the fields",
+            style: TextStyle(fontSize: 16),),
+          ),
         );
         return;
       }
@@ -72,26 +79,45 @@ class _CaseDetailedViewState extends State<CaseDetailedView> {
         'status': 'resolved',
         'prescribedMedicine': medicineController.text,
         'dosage': dosageController.text,
+        'price': double.tryParse(priceController.text) ?? 0,
+        'orderMethod': "",
       });
 
       if (!mounted) return;
 
+      // medicineController.clear();
+      // dosageController.clear();
+      // priceController.clear();
       Navigator.pop(context);
     }
 
     /// Further assessment dialog
-    void _furtherAssessment() {
+    void _furtherAssessment() async {
+      final caseDocId = await _getCaseDocId();
+      if (caseDocId == null) return;
+
+      /// 1. Update status first
+      await _db.collection('cases').doc(caseDocId).update({
+        'status': 'further assessment',
+      });
+
+      if (!mounted) return;
+
+      /// 2. Show popup after updating
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
           title: const Text("Further Assessment"),
           content: const Text(
-            "We will connect you to the patient for further assessment. Please wait while we establish the connection.",
-            style: TextStyle(fontSize: 16,),
+            "We will connect you to the patient shortly.",
+            style: TextStyle(fontSize: 16),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context); // close dialog
+                Navigator.pop(context); // close case detail
+              },
               child: const Text("OK"),
             )
           ],
@@ -244,6 +270,17 @@ class _CaseDetailedViewState extends State<CaseDetailedView> {
                     controller: dosageController,
                     decoration: const InputDecoration(
                       labelText: "Dosage (mg)",
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  TextField(
+                    controller: priceController,
+                    decoration: const InputDecoration(
+                      labelText: "Price (USD)",
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,

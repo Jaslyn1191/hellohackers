@@ -114,7 +114,9 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                   .collection("cases")
                   .where(
                     "status",
-                    isEqualTo: _showPending ? "Pending Pharmacist Review" : "Resolved",
+                    isEqualTo: _showPending
+                        ? "Pending Pharmacist Review"
+                        : "resolved",
                   )
                   .snapshots(),
 
@@ -125,12 +127,22 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                    child: Text("No Cases Found"),
-                  );
+                  return const Center(child: Text("No Cases Found"));
                 }
 
-                final docs = snapshot.data!.docs;
+                // 🔥 FILTER OUT DOCUMENTS WITHOUT caseID
+                final docs = snapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+
+                  // ignore if caseID field missing or empty
+                  return data.containsKey("caseID") &&
+                        data["caseID"] != null &&
+                        data["caseID"].toString().isNotEmpty;
+                }).toList();
+
+                if (docs.isEmpty) {
+                  return const Center(child: Text("No Valid Cases Found"));
+                }
 
                 return ListView.builder(
                   padding: const EdgeInsets.all(8),
@@ -141,13 +153,12 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
-                      child:
-                        CaseCard(
-                          caseId: data["caseID"] ?? "",
-                          name: data["userName"] ?? "",
-                          age: data["userAge"] ?? 0,
-                          status: data["status"] ?? "",
-                        ),
+                      child: CaseCard(
+                        caseId: data["caseID"] ?? "",
+                        name: data["userName"] ?? "",
+                        age: data["userAge"] ?? 0,
+                        status: data["status"] ?? "",
+                      ),
                     );
                   },
                 );
