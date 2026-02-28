@@ -9,7 +9,16 @@ class ChatService {
     required String userEmail,
     required String caseId, // Optional, can be generated if not provided
   }) async {
-    // final generatedCaseId = await CaseService.generateCaseId();
+
+    final userQueru = await _db.collection('users').where('email', isEqualTo: userEmail).limit(1).get();
+
+    if (userQueru.docs.isEmpty) {
+      throw Exception("User not found");
+    }
+
+    final userData = userQueru.docs.first.data();
+    final String userName = userData['name'] ?? 'Unknown';
+    final int userAge = userData['age'] ?? 0;
 
     final docRef = _db.collection("cases").doc(); // access the document
 
@@ -17,6 +26,8 @@ class ChatService {
     await docRef.set({
       "caseID": caseId,
       'userEmail': userEmail,
+      'userName': userName,
+      'userAge': userAge,
       'status': 'Pending Pharmacist Review',
       'createdAt': FieldValue.serverTimestamp(),
     });
