@@ -168,7 +168,7 @@ cd functions
 npm install
 ```
 
-**Step 4: Running the application**
+**Step 4: Running the Application**
 1. **Fetch Dependencies**: Run to update `pubspec.yaml` and download the package
 ```bash
 flutter pub get
