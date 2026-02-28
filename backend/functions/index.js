@@ -1,8 +1,8 @@
 // index.js inside functions folder
-import { getPendingCases } from '../hellohackers_flutter/getPendingCases.js';
-import { sendToPharmacist } from '../hellohackers_flutter/sendToPharmacist.js';
-import { reviewCases } from '../hellohackers_flutter/reviewCases.js';
-import { pharmacistCall } from '../hellohackers_flutter/pharmacistCall.js';
+import { getPendingCases } from './pendingCases.js';
+import { sendToPharmacist } from './pharmacistNotify.js';
+import { reviewCases } from './reviewCases.js';
+import { pharmacistCall } from './pharmacistCall.js';
 
 const functions = require('firebase-functions'); // Firebase v1/v2 API
 const express = require('express');

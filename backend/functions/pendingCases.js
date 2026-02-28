@@ -1,27 +1,25 @@
 import db from "./firebase-admin.js";
 
 export async function getPendingCases() {
-  const cases = await db
+  const snapshot = await db
     .collection("cases")
-    .where("status", "Pending Pharmacist Review")
+    .where("status", "==", "Pending Pharmacist Review")
     .get();
 
-  // if no cases
-  if (cases.empty) {
-    return []; 
-  }
+  if (snapshot.empty) return [];
 
   const pendingCases = [];
-  cases.forEach(doc => {
+
+  snapshot.forEach(doc => {
     const data = doc.data();
     pendingCases.push({
-      caseId: doc.id,
-      lastMessage: data.lastMessage || "",
-      createdAt: data.createdAt?.toDate().toISOString() || "", 
-      userEmail: data.userEmail || "",
-      status: data.status || ""
+      caseID: doc.id, 
+      lastMessage: (data.conversation?.slice(-1)[0]?.content) || "Pending review by pharmacist",
+      createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : "",
+      status: data.status || "Pending Pharmacist Review",
     });
   });
+
 
   return pendingCases;
 }

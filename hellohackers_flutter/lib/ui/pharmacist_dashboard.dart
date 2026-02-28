@@ -20,16 +20,16 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
   @override
   void initState() {
     super.initState();
-    fetchPendingCases(); // fetch data when page loads
+    fetchPendingCases(); 
   }
 
   Future<void> fetchPendingCases() async {
     try {
-      final url = Uri.parse('https://api-cqohnaeeea-uc.a.run.app');
+      final url = Uri.parse('https://us-central1-ai-otc-prototype.cloudfunctions.net/api/pending-cases');
       final response = await http.get(url);
 
       print('Status code: ${response.statusCode}');
-      print('Raw body: ${response.body}'); // debug
+      print('Raw body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -38,10 +38,9 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
         setState(() {
           pendingCases.clear();
           for (var c in cases) {
-            // Only include cases pending pharmacist review
             if ((c['status'] ?? '') == 'Pending Pharmacist Review') {
               pendingCases.add(CaseItem(
-                id: c['caseID'].hashCode, // use correct key
+                id: c['caseID'].hashCode,
                 title: 'Case #${c['caseID']}',
                 description: c['lastMessage'] ?? 'Pending review by pharmacist',
                 date: c['createdAt'] ?? '',
