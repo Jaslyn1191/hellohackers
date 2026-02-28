@@ -11,20 +11,15 @@ export async function sendToPharmacist({ caseId }) {
     const doc = await docRef.get();
     if (!doc.exists) throw new Error("Case not found");
 
-    const userIssue = doc.data().symptoms || "No issue provided";
+    const lastMessage = data.lastMessage || "No message provided";
+    const createdAt = data.createdAt || admin.firestore.FieldValue.serverTimestamp();
 
-    const pharmacistMessage = `New patient report ready for review:
-    Case ID: ${caseId}
-    Issue: ${userIssue}
-    Status: Pending`;
-
-    await docRef.update({
+     await docRef.update({
       status: "Pending Pharmacist Review",
-      pharmacistSentAt: admin.firestore.FieldValue.serverTimestamp()
+      pharmacistSentAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastMessage: lastMessage,
+      createdAt: createdAt,
     });
-
-    // notifications
-    const userMessage = "Okay, thank you. All the information you've provided will now be reviewed by a pharmacist."
 
     // successfully send to pharmacist
     return { success: true, userMessage };
