@@ -7,7 +7,8 @@ export async function sendToPharmacist({ caseId }) {
       throw new Error("caseId is required");
     }
 
-    const doc = await db.collection("cases").doc(caseId).get();
+    const docRef = db.collection("cases").doc(caseId); 
+    const doc = await docRef.get();
     if (!doc.exists) throw new Error("Case not found");
 
     const userIssue = doc.data().symptoms || "No issue provided";
@@ -17,10 +18,9 @@ export async function sendToPharmacist({ caseId }) {
     Issue: ${userIssue}
     Status: Pending`;
 
-    await db.collection("cases").doc(caseId).update({
+    await docRef.update({
       status: "Pending Pharmacist Review",
-      // create auto timestamp
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
+      pharmacistSentAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
     // notifications
