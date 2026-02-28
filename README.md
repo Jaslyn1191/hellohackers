@@ -116,7 +116,7 @@ Used to develop and test the mobile application interface.
 ## 4. Implementation Details & Innovation
 ### System Architecture 
 ![System Architecture](assets/architectureDiagram.png)
-### Workflow
+### System Workflow
 ![System Flow](assets/systemFlow.png)
 
 ## 5. Challenges Faced
@@ -179,6 +179,7 @@ flutterfire configure
 ```
 3. **Run the Application**: Start emulator or connect device, then run
 ```bash
+cd hellohackers_flutter
 flutter run
 ```
 
