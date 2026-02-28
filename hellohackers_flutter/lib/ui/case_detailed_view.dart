@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hellohackers_flutter/core/colors.dart';
 
 class CaseDetailedView extends StatefulWidget {
-  final int caseId;
+  final String caseId;
   final String patientName;
   final int patientAge;
-  final List<MedicineItem> medicines;
+  // final List<MedicineItem> medicines;
 
   const CaseDetailedView({
     super.key,
     required this.caseId,
     required this.patientName,
     required this.patientAge,
-    required this.medicines,
+    // required this.medicines,
   });
 
   @override
@@ -19,10 +21,92 @@ class CaseDetailedView extends StatefulWidget {
 }
 
 class _CaseDetailedViewState extends State<CaseDetailedView> {
+
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+  final TextEditingController medicineController = TextEditingController();
+  final TextEditingController dosageController = TextEditingController();
+
+
+  // Stream<QuerySnapshot> getMessages() {
+  // return _db
+  //     .collection('cases')
+  //     .where('caseID', isEqualTo: widget.caseId)
+  //     .limit(1)
+  //     .snapshots();
+  // }
+
+  Future<String?> _getCaseDocId() async {
+    final query = await _db
+        .collection('cases')
+        .where('caseID', isEqualTo: widget.caseId)
+        .limit(1)
+        .get();
+
+    if (query.docs.isEmpty) return null;
+
+    return query.docs.first.id;
+  }
+
+    Stream<QuerySnapshot>? _getMessagesStream(String caseDocId) {
+      return _db
+          .collection('cases')
+          .doc(caseDocId)
+          .collection('messages')
+          .orderBy('timestamp', descending: false)
+          .snapshots();
+    }
+
+    Future<void> _approveCase() async {
+      if (medicineController.text.isEmpty || dosageController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please enter medicine and dosage")),
+        );
+        return;
+      }
+
+      final caseDocId = await _getCaseDocId();
+      if (caseDocId == null) return;
+
+      await _db.collection('cases').doc(caseDocId).update({
+        'status': 'resolved',
+        'prescribedMedicine': medicineController.text,
+        'dosage': dosageController.text,
+      });
+
+      if (!mounted) return;
+
+      Navigator.pop(context);
+    }
+
+    /// Further assessment dialog
+    void _furtherAssessment() {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Further Assessment"),
+          content: const Text(
+            "We will connect you to the patient for further assessment. Please wait while we establish the connection.",
+            style: TextStyle(fontSize: 16,),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            )
+          ],
+        ),
+      );
+    }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
       insetPadding: const EdgeInsets.all(10),
       child: Container(
         width: double.infinity,
@@ -37,271 +121,204 @@ class _CaseDetailedViewState extends State<CaseDetailedView> {
             fit: BoxFit.cover,
           ),
         ),
-        child: Column(
-          children: [
-            // Scrollable content area
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Case ID
-                    Text(
-                      'Case #${widget.caseId}',
-                      style: const TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                        fontFamily: 'timess',
-                      ),
-                    ),
-                    const SizedBox(height: 40),
+        child: FutureBuilder<String?>(
+          future: _getCaseDocId(),
+          builder: (context, snapshot) {
+            final caseDocId = snapshot.data;
 
-                    // Patient Name
-                    Row(
-                      children: [
-                        const SizedBox(
-                          width: 100,
-                          child: Text(
-                            'Patient Name:',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.patientName,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// ================= CASE INFO =================
 
-                    // Patient Age
-                    Row(
-                      children: [
-                        const SizedBox(
-                          width: 100,
-                          child: Text(
-                            'Patient Age:',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            '${widget.patientAge} years',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ],
+                  Text(
+                    "Case #${widget.caseId}",
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "timess",
                     ),
-                    const SizedBox(height: 40),
+                  ),
 
-                    // Medicine Prescription Table
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          // Table Header
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
+                  const SizedBox(height: 20),
+
+                  Text("Patient Name: ${widget.patientName}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "timess")),
+                  const SizedBox(height: 8),
+                  Text("Age: ${widget.patientAge} years", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,fontFamily: "timess")),
+
+                  const SizedBox(height: 30),
+
+                  /// ================= CHAT MESSAGES =================
+
+                  const Text(
+                    "Chat Messages",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontFamily: "timess",
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  if (caseDocId != null)
+                    StreamBuilder<QuerySnapshot>(
+                      stream: _getMessagesStream(caseDocId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+
+                        if (!snapshot.hasData ||
+                            snapshot.data!.docs.isEmpty) {
+                          return const Text("No messages.");
+                        }
+
+                        final messages = snapshot.data!.docs;
+
+                        return Column(
+                          children: messages.map((doc) {
+                            final data = doc.data() as Map<String, dynamic>;
+
+                            final bool isUser = data['isUser'] ?? false;
+
+                            return Align(
+                              alignment:
+                                  isUser ? Alignment.centerRight : Alignment.centerLeft,
+                              child: Container(
+                                constraints: BoxConstraints(
+                                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                                ),
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isUser
+                                      ? Colors.white
+                                      : AppColors.blue,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 child: Text(
-                                  'Medicine',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                  data['text'] ?? '',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: isUser ? Colors.black : Colors.white,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                flex: 1,
-                                child: Text(
-                                  'Dosage (mg)',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(color: Colors.black26),
-                          // Table Rows
-                          ...widget.medicines.map((medicine) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      medicine.name,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      '${medicine.dosage}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ],
                               ),
                             );
                           }).toList(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Buttons at bottom
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 180,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showApprovalDialog();
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00796B),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: const Text(
-                        'Approve prescription',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
+                    )
+                  else
+                    const Text("Loading messages..."),
+
+                  const SizedBox(height: 30),
+
+                  /// ================= PRESCRIPTION INPUT =================
+
+                  const Text(
+                    "Prescribe Medicine",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 180,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showContactDialog();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00796B),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: const Text(
-                        'Contact Patient',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+
+                  const SizedBox(height: 10),
+
+                  TextField(
+                    controller: medicineController,
+                    decoration: const InputDecoration(
+                      labelText: "Medicine Name",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  TextField(
+                    controller: dosageController,
+                    decoration: const InputDecoration(
+                      labelText: "Dosage (mg)",
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  /// ================= BUTTONS =================
+
+                  Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _approveCase,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color(0xFF00796B),
+                          padding:
+                              const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
+                        ),
+                        child: const Text(
+                          "Approve",
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
+                      ElevatedButton(
+                        onPressed: _furtherAssessment,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color(0xFF00796B),
+                          padding:
+                              const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 12),
+                        ),
+                        child: const Text(
+                          "Further Assessment",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Center(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Close"),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
-
-  void _showApprovalDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Approval'),
-        content: const Text('Prescription approved successfully!'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showContactDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Contact Patient'),
-        content: const Text('Contacting patient...'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-// Model class for medicine items
-class MedicineItem {
-  final String name;
-  final double dosage;
-
-  MedicineItem({required this.name, required this.dosage});
-}
-
-// Helper function to show the detailed view as a modal
+/// Helper to open dialog
 void showCaseDetailedView(
   BuildContext context, {
-  required int caseId,
+  required String caseId,
   required String patientName,
   required int patientAge,
-  required List<MedicineItem> medicines,
 }) {
   showDialog(
     context: context,
-    builder: (context) => CaseDetailedView(
+    builder: (_) => CaseDetailedView(
       caseId: caseId,
       patientName: patientName,
       patientAge: patientAge,
-      medicines: medicines,
     ),
   );
 }

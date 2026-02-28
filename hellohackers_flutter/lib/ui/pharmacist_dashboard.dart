@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
+import 'case_card.dart';
 import 'dart:convert';
 
 class PharDashboardPage extends StatefulWidget {
@@ -14,54 +16,19 @@ class PharDashboardPage extends StatefulWidget {
 
 class _PharDashboardPageState extends State<PharDashboardPage> {
   bool _showPending = true;
-  final List<CaseItem> pendingCases = [];
-  final List<CaseItem> resolvedCases = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // final List<CaseItem> pendingCases = [];
+  // final List<CaseItem> resolvedCases = [];
 
   @override
   void initState() {
     super.initState();
-    fetchPendingCases(); // fetch data when page loads
   }
 
-  Future<void> fetchPendingCases() async {
-    try {
-      final url = Uri.parse('https://api-cqohnaeeea-uc.a.run.app');
-      final response = await http.get(url);
 
-      print('Status code: ${response.statusCode}');
-      print('Raw body: ${response.body}'); // debug
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List cases = data['cases'] ?? [];
-
-        setState(() {
-          pendingCases.clear();
-          for (var c in cases) {
-            // Only include cases pending pharmacist review
-            if ((c['status'] ?? '') == 'Pending Pharmacist Review') {
-              pendingCases.add(CaseItem(
-                id: c['caseID'].hashCode, // use correct key
-                title: 'Case #${c['caseID']}',
-                description: c['lastMessage'] ?? 'Pending review by pharmacist',
-                date: c['createdAt'] ?? '',
-              ));
-            }
-          }
-        });
-
-        print('Loaded ${pendingCases.length} pending cases');
-      } else {
-        print('Failed to load pending cases: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error fetching pending cases: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final casesToDisplay = _showPending ? pendingCases : resolvedCases;
 
     return Scaffold(
       body: Stack(
@@ -83,7 +50,7 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
             children: [
               Container(
                 width: double.infinity,
-                height: 80,
+                height: 60,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/images/background_2.png'),
@@ -142,12 +109,48 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
             left: 0,
             right: 0,
             bottom: 60,
-            child: ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: casesToDisplay.length,
-              itemBuilder: (context, index) {
-                final caseItem = casesToDisplay[index];
-                return _buildCaseCard(caseItem);
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore
+                  .collection("cases")
+                  .where(
+                    "status",
+                    isEqualTo: _showPending ? "Pending Pharmacist Review" : "Resolved",
+                  )
+                  .snapshots(),
+
+              builder: (context, snapshot) {
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text("No Cases Found"),
+                  );
+                }
+
+                final docs = snapshot.data!.docs;
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+
+                    final data = docs[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child:
+                        CaseCard(
+                          caseId: data["caseID"] ?? "",
+                          name: data["userName"] ?? "",
+                          age: data["userAge"] ?? 0,
+                          status: data["status"] ?? "",
+                        ),
+                    );
+                  },
+                );
               },
             ),
           ),
@@ -203,36 +206,36 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
     );
   }
 
-  Widget _buildCaseCard(CaseItem caseItem) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            caseItem.title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00796B)),
-          ),
-          const SizedBox(height: 8),
-          Text(caseItem.description, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
-          const SizedBox(height: 8),
-          Text('Date: ${caseItem.date}', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-        ],
-      ),
-    );
-  }
+  // Widget _buildCaseCard(CaseItem caseItem) {
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+  //     padding: const EdgeInsets.all(12),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.1),
+  //           blurRadius: 4,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text(
+  //           caseItem.title,
+  //           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00796B)),
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(caseItem.description, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+  //         const SizedBox(height: 8),
+  //         Text('Date: ${caseItem.date}', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void _openAdminProf() {
     showModalBottomSheet(
@@ -276,16 +279,16 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
   }
 }
 
-class CaseItem {
-  final int id;
-  final String title;
-  final String description;
-  final String date;
+// class CaseItem {
+//   final int id;
+//   final String title;
+//   final String description;
+//   final String date;
 
-  CaseItem({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.date,
-  });
-}
+//   CaseItem({
+//     required this.id,
+//     required this.title,
+//     required this.description,
+//     required this.date,
+//   });
+// }
