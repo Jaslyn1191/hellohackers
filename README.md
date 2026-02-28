@@ -115,7 +115,7 @@ Used to develop and test the mobile application interface.
 
 ## 4. Implementation Details & Innovation
 ### System Architecture 
-
+![System Architecture](assets/architecture diagram.png)
 ### Workflow
 ![System Flow](assets/systemFlow.png)
 
