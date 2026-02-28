@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hellohackers_flutter/core/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class PharDashboardPage extends StatefulWidget {
   final String staffEmail;
@@ -12,16 +14,50 @@ class PharDashboardPage extends StatefulWidget {
 
 class _PharDashboardPageState extends State<PharDashboardPage> {
   bool _showPending = true;
-  // Using List (Dart's equivalent of ArrayList) for dynamic arrays
   final List<CaseItem> pendingCases = [];
   final List<CaseItem> resolvedCases = [];
 
-  // Example List operations (similar to ArrayList methods):
-  // pendingCases.add(CaseItem(...)) - adds item
-  // pendingCases.removeAt(index) - removes item at index
-  // pendingCases.clear() - removes all items
-  // pendingCases.length - gets size
-  // pendingCases[index] - gets item at index
+  @override
+  void initState() {
+    super.initState();
+    fetchPendingCases(); // fetch data when page loads
+  }
+
+  Future<void> fetchPendingCases() async {
+    try {
+      final url = Uri.parse('https://api-cqohnaeeea-uc.a.run.app');
+      final response = await http.get(url);
+
+      print('Status code: ${response.statusCode}');
+      print('Raw body: ${response.body}'); // debug
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List cases = data['cases'] ?? [];
+
+        setState(() {
+          pendingCases.clear();
+          for (var c in cases) {
+            // Only include cases pending pharmacist review
+            if ((c['status'] ?? '') == 'Pending Pharmacist Review') {
+              pendingCases.add(CaseItem(
+                id: c['caseID'].hashCode, // use correct key
+                title: 'Case #${c['caseID']}',
+                description: c['lastMessage'] ?? 'Pending review by pharmacist',
+                date: c['createdAt'] ?? '',
+              ));
+            }
+          }
+        });
+
+        print('Loaded ${pendingCases.length} pending cases');
+      } else {
+        print('Failed to load pending cases: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching pending cases: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +78,7 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
             ),
           ),
 
-          // Header with title and logo
+          // Header
           Column(
             children: [
               Container(
@@ -58,9 +94,7 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-
                     const Spacer(),
-
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -80,9 +114,7 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                         ),
                       ],
                     ),
-
                     const Spacer(),
-
                     GestureDetector(
                       onTap: () => _openAdminProf(),
                       child: Container(
@@ -100,12 +132,11 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                   ],
                 ),
               ),
-
               const Spacer(),
             ],
           ),
 
-          // RecyclerView (ListView) for cases
+          // ListView
           Positioned(
             top: 60,
             left: 0,
@@ -121,7 +152,7 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
             ),
           ),
 
-          // Buttons at bottom
+          // Bottom buttons
           Positioned(
             bottom: 10,
             left: 0,
@@ -129,7 +160,6 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Pending Cases button
                 SizedBox(
                   width: 180,
                   height: 50,
@@ -137,7 +167,9 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                     onPressed: () => setState(() => _showPending = true),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _showPending ? AppColors.blue : Colors.grey[400],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: const Text(
                       'Pending Cases',
@@ -146,7 +178,6 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                   ),
                 ),
                 const SizedBox(width: 20),
-                // Resolved Cases button
                 SizedBox(
                   width: 180,
                   height: 50,
@@ -154,12 +185,13 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                     onPressed: () => setState(() => _showPending = false),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: !_showPending ? AppColors.blue : Colors.grey[400],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: const Text(
                       'Resolved Cases',
                       style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-
                     ),
                   ),
                 ),
@@ -191,22 +223,12 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
         children: [
           Text(
             caseItem.title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF00796B),
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00796B)),
           ),
           const SizedBox(height: 8),
-          Text(
-            caseItem.description,
-            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-          ),
+          Text(caseItem.description, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
           const SizedBox(height: 8),
-          Text(
-            'Date: ${caseItem.date}',
-            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-          ),
+          Text('Date: ${caseItem.date}', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
         ],
       ),
     );
@@ -223,25 +245,14 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
             ListTile(
-              leading: const Icon(
-                Icons.logout,
-                color: AppColors.lightBlue,
-              ),
-              title: const Text(
-                'Log Out',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              leading: const Icon(Icons.logout, color: AppColors.lightBlue),
+              title: const Text('Log Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               onTap: () async {
                 try {
                   await FirebaseAuth.instance.signOut();
-
                   if (mounted) {
-                    Navigator.pop(context); // close bottom sheet
+                    Navigator.pop(context);
                     Navigator.pushReplacementNamed(context, '/userLogin');
                   }
                 } catch (e) {
@@ -251,23 +262,19 @@ class _PharDashboardPageState extends State<PharDashboardPage> {
                       context: context,
                       builder: (context) => const AlertDialog(
                         title: Text('Error'),
-                        content: Text(
-                            'Failed to sign out. Please try again.'),
+                        content: Text('Failed to sign out. Please try again.'),
                       ),
                     );
                   }
                 }
               },
             ),
-
           ],
         ),
       ),
     );
   }
 }
-
-
 
 class CaseItem {
   final int id;

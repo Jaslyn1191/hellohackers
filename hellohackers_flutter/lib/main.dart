@@ -7,7 +7,7 @@ import "ui/user_signup.dart";
 import "ui/pharmacist_login.dart";
 import "ui/forgot_password.dart";
 import "ui/user_dashboard.dart";
-import "ui/phar_dashboard.dart";
+import "ui/pharmacist_dashboard.dart";
 import "ui/case_card.dart";
 import "ui/case_detailed_view.dart";
 import "core/colors.dart";
