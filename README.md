@@ -153,7 +153,7 @@ Please see the [Flutter documentation for using VS Code](https://docs.flutter.de
     - Select the Visual Studio Code, HTTPS option under the "Open with" tab
     - Select the Folder you wish to store the repository under.
 
-**Step 2: Installation**
+**Step 3: Installations**
 1. **Install Node.js**: Navigate to [Node installation guide](https://nodejs.org/en/download) and install the latest version of Node.js
 2. **Install FlutterFire CLI**: To install, run the following command:
 ```bash
@@ -168,7 +168,7 @@ cd functions
 npm install
 ```
 
-**Step 3: Running the application**
+**Step 4: Running the application**
 1. **Fetch Dependencies**: Run to update `pubspec.yaml` and download the package
 ```bash
 flutter pub get
